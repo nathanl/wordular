@@ -2,4 +2,8 @@
   <h2>Your anagrams here!</h2>
 </div>
 
-<p>Looks like you wanted anagrams of '<%= @phrase %>'. Unfortunately, this app doesn't yet know that trick.</p>
+<p>Here are some anagrams of '<%= @phrase %>'.</p>
+
+<ul>
+  <%= raw(anagram_output(@anagrams)) %>
+</ul>

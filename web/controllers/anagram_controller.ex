@@ -8,7 +8,8 @@ defmodule Wordular.AnagramController do
   end
 
   def show(conn, %{"phrase" => phrase}) do
-    render conn, "show.html", phrase: phrase
+    anagrams = Anagrams.for(phrase)
+    render conn, "show.html", phrase: phrase, anagrams: anagrams
   end
  
 end
