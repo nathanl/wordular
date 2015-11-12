@@ -2,14 +2,17 @@
 defmodule Anagrams do
 
   def for(phrase) do
-    Enum.filter(rearrangements_of(phrase), &is_a_word?(&1))
+    phrase
+    |> String.downcase
+    |> rearrangements_of
+    |> Enum.filter(&is_a_word?(&1))
   end
 
   def rearrangements_of(phrase) do
-    String.split(phrase, "")
+    String.codepoints(phrase)
     |> permutations
-    # |> Enum.shuffle
-    # |> List.to_string
+    |> Enum.map(&Enum.join(&1, ""))
+    |> Enum.uniq
   end
 
   def permutations([]) do
@@ -17,17 +20,16 @@ defmodule Anagrams do
   end
 
   def permutations(list) do
-    dictionary
-    # um... try to figure out http://www.erlang.org/doc/programming_examples/list_comprehensions.html#id64959
-    # perms(list)  -> [[H|T] || H <- L, T <- perms(L--[H])].
+    for h <- list, t <- permutations(list -- [h]), do: [h | t]
   end
 
   def is_a_word?(possible_word) do
-    Enum.any?(dictionary, fn(entry) -> entry == possible_word end)
+    possible_word in dictionary
   end
 
   def dictionary do
-    ["bat", "tab"]
+    # NOTE: should always be downcased
+    ["bat", "tab", "cat", "race", "car", "racecar"]
   end
 
 end

@@ -6,4 +6,16 @@ defmodule Wordular.AnagramsTest do
     assert Anagrams.for("bat") == ["bat", "tab"]
   end
 
+  test "can generate anagrams with spaces" do
+    assert "race car" in Anagrams.for("RACecar")
+  end
+
+  test "can make some permutations" do
+    assert Anagrams.permutations(["a", "b"]) == [["a", "b"], ["b", "a"]]
+  end 
+
+  test "can permutate an empty list" do
+    assert Anagrams.permutations([]) == [[]]
+  end
+
 end
