@@ -7,7 +7,8 @@ defmodule Wordular.AnagramsTest do
   end
 
   test "can generate anagrams with spaces" do
-    assert "race car" in Anagrams.for("RACecar")
+    assert "be at" in Anagrams.for("beat")
+    assert "a bet" in Anagrams.for("beat")
   end
 
   test "can make some permutations" do
