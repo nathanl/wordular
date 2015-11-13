@@ -1,4 +1,29 @@
-# I want to write a fast anagram generator. But first I want to try the simplest thing that could possibly work: take a string, generate every possible rearrangement of its characters, and see if the resulting strings are all words in a dictionary. The "every possible rearrangement" part is O(N!), so that's horrible. But - baby steps.
+# The "every possible rearrangement" part is O(N!), so that's horrible. Adding
+# all possible space positions is more horrible. This algorithm "works" for
+# 6-letter input phrases but chokes on 7, and we still have a tiny
+# dictionary. We should be able to ignore the order of the letters and spaces.
+# Possible strategy:
+# - Convert input phrase to letters and sort them (but don't use a set,
+# because it's a non-unique list)
+# - For each word in the dictionary, ask "are all of this word's letters
+# contained in the phrase's letters?" (Again, this is not a set operation - if
+# the word is "apple", the phrase must have two "p"s.) If so, subtract this
+# word's letters from the phrase's letters and recurse with the smaller phrase
+# and the list of words found so far. If we ever get down to an empty list of
+# letters form the phrase  and a non-empty list of words, we've found an
+# anagram. If we ever run out of words and still have letters from our phrase,
+# we've hit a dead end.
+# - While doing the above, if we fail to find a word, ensure that we don't
+# look for it in the recursions. Eg, if we can't find "apple" in "racecars are
+# rad", but we can find "are", there's no point looking for "apple" in
+# "racecars rad". DO NOT remove "apple" from the dictionary if we DO find it -
+# it may be in there again. Eg "apple apple, likes to grapple"
+# - Dicationary words may also be anagrams of each other. Eg, if our phrase
+# contains "bat", it contains "tab", because they are both examples of the
+# letter list "abt". Maybe pre-process our dictionary to group these, so that
+# we can check for "abt" once and immediately know that any of its matching
+# words can be made from the phrase.
+# - If we can get all the above working, consider how to parallelize it
 defmodule Anagrams do
 
   def for(phrase) do
