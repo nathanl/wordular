@@ -19,4 +19,17 @@ defmodule Wordular.AnagramsTest do
     assert Anagrams.permutations([]) == [[]]
   end
 
+  test "can convert a string to a character_list" do
+    assert Anagrams.character_list("nappy") == ["a", "n", "p", "p", "y"]
+  end
+
+  test "can map dictionary words by character list" do
+    actual = Anagrams.character_list_map(["bat", "tab", "hat"])
+    expected = %{
+      ["a", "b", "t"] => ["bat", "tab"],
+      ["a", "h", "t"] => ["hat"],
+    }
+    assert actual == expected
+  end
+
 end
