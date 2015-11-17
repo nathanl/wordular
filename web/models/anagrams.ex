@@ -20,7 +20,7 @@
 # it may be in there again. Eg "apple apple, likes to grapple"
 # - Dicationary words may also be anagrams of each other. Eg, if our phrase
 # contains "bat", it contains "tab", because they are both examples of the
-# letter list "abt". Maybe pre-process our dictionary to group these, so that
+# letter list "abt". Pre-process our dictionary to group these, so that
 # we can check for "abt" once and immediately know that any of its matching
 # words can be made from the phrase.
 # - If we can get all the above working, consider how to parallelize it
@@ -83,7 +83,6 @@ defmodule Anagrams do
     p_character_list_map(words, %{})
   end
 
-
   defp p_character_list_map([], map) do
     map
   end
@@ -98,4 +97,20 @@ defmodule Anagrams do
     end
     p_character_list_map(remaining_words, updated_map)
   end
+
+  # success base case for recursion
+  def matches_for([], dictionary) do
+    dictionary
+  end
+
+  def matches_for(charlist, dictionary) do
+    # for each word in the dictionary, try subtracting
+    # only the ones found in the top level phrase are possible to find in
+    # sub-phrases...
+  end
+
+  def remainder(haystack, needle) do
+  end
+
+
 end

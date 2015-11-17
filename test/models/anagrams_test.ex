@@ -32,4 +32,37 @@ defmodule Wordular.AnagramsTest do
     assert actual == expected
   end
 
+  test "can find dictionary matches for an empty phrase" do
+    dictionary = %{
+      ["a", "b", "t"] => ["bat", "tab"],
+      ["a", "h", "t"] => ["hat"],
+    }
+
+    actual = Anagrams.matches_for([], dictionary)
+    assert actual == dictionary
+  end
+
+  test "can find dictionary matches for a non-empty phrase" do
+    dictionary = %{
+      ["a", "b", "t"] => ["bat", "tab"],
+      ["a", "h", "t"] => ["hat"],
+      ["m", "y"]      => ["my"],
+    }
+    expected = %{
+      ["a", "b", "t"] => ["bat", "tab"],
+      ["a", "h", "t"] => ["hat"],
+    }
+    actual = Anagrams.matches_for(["a", "a", "b", "h", "t", "t"], dictionary)
+    assert actual == expected
+  end
+
+  test "can remove one list from another" do
+    assert Anagrams.remainder(["a", "b", "c"], ["a", "b"]) == ["c"]
+    assert Anagrams.remainder(["b", "b", "c"], ["b", "c"]) == ["b"]
+    assert Anagrams.remainder(["b", "b", "c"], ["c"])      == ["b", "b"]
+    assert Anagrams.remainder(["a", "b", "c"], ["a", "a"]) == nil
+    assert Anagrams.remainder(["a", "b", "c"], ["a", "q"]) == nil
+  end
+
+
 end
