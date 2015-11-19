@@ -4,7 +4,7 @@ all possible space positions is more horrible. This algorithm "works" for
 dictionary. We should be able to ignore the order of the letters and spaces.
 Possible strategy:
 
-- Convert input phrase to letters and sort them (but don't use a set,
+- x Convert input phrase to letters and sort them (but don't use a set,
 because it's a non-unique list)
 - For each word in the dictionary, ask "are all of this word's letters
 contained in the phrase's letters?" (Again, this is not a set operation - if
@@ -30,7 +30,7 @@ UPDATE - talked with michael. A key idea is to separate "throw out
 dictionary words that can't be found in this phrase", which we do first,
 from "then recurse with each word that CAN be found and its
 corresponding remaining phrase."
-Eg, if the phrase is "applesace is tasty", first go through the
+Eg, if the phrase is "applesauce is tasty", first go through the
 dictionary and notice that, eg, "potato" can't be found in this phrase.
 Then when we recurse with (["apple", "sauce is tasty"], dictionary) and
 (["is", "apple # tasty"], dictionary), we can use the winnowed dictionary

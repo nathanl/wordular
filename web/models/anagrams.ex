@@ -48,43 +48,71 @@ defmodule Anagrams do
     ["bat", "tab", "cat", "be", "at", "a", "bet"]
   end
 
-  def character_list(string) do
+  def sorted_codepoints(string) do
     string
     |> String.codepoints
     |> Enum.sort
   end
 
-  def character_list_map(words) do
-    p_character_list_map(words, %{})
+  def processed_dictionary(dictionary) do
+    processed_dictionary(dictionary, %{})
   end
 
-  defp p_character_list_map([], map) do
-    map
+  defp processed_dictionary([], output_pd) do
+    output_pd
   end
 
-  defp p_character_list_map([current_word | remaining_words], map) do
-    current_word_chars = character_list(current_word)
-    if Map.has_key?(map, current_word_chars) do
-      existing_entry = Map.get(map, current_word_chars)
-      updated_map = Map.put(map, current_word_chars, existing_entry ++ [current_word])
+  defp processed_dictionary([current_word | remaining_words], output_pd) do
+    current_word_chars = sorted_codepoints(current_word)
+    if Map.has_key?(output_pd, current_word_chars) do
+      existing_entry = Map.get(output_pd, current_word_chars)
+      updated_pd = Map.put(output_pd, current_word_chars, existing_entry ++ [current_word])
     else
-      updated_map = Map.put(map, current_word_chars, [current_word])
+      updated_pd = Map.put(output_pd, current_word_chars, [current_word])
     end
-    p_character_list_map(remaining_words, updated_map)
+    processed_dictionary(remaining_words, updated_pd)
   end
 
-  # success base case for recursion
-  def matches_for([], dictionary) do
-    dictionary
+  def for2(phrase, dictionary) do
+    pd = processed_dictionary(dictionary)
+    entry_sets = find_entry_sets_for(sorted_codepoints(phrase), Map.keys(pd) |> Enum.into(HashSet.new))
+    # expand those into their possible anagrams
   end
 
-  def matches_for(charlist, dictionary) do
-    # for each word in the dictionary, try subtracting
-    # only the ones found in the top level phrase are possible to find in
-    # sub-phrases...
+  # define base case
+  def find_entry_sets_for([], _dict_entries) do
+    Set.put(HashSet.new, HashSet.new)
   end
 
-  def remainder(haystack, needle) do
+  # catbat
+  # set(set(["a", "b", "t"], ["a", "c", "t"]), ...)
+  # phrase is a sorted_codepoints; dict_entries is a set of sorted_codepoints
+  # return a set of entry sets - each entry set is a set of entries, each
+  # entry is a sorted_codepoints, each entry set contains exactly the letters
+  # of the input phrase
+  def find_entry_sets_for(phrase, dict_entries) do
+    usable_entries = usable_entries_for(dict_entries, phrase) # TODO define this
+    if Set.size(usable_entries) == 0 do
+      HashSet.new
+    else
+      x = for entry <- usable_entries, entry_set <- find_entry_sets_for( (without(phrase, entry)), usable_entries), do: entry_set.put(entry)
+      x |> Enum.into(HashSet.new)
+    end
   end
+
+  # # success base case for recursion
+  # def matches_for([], processed_dictionary) do
+  #   processed_dictionary
+  # end
+  #
+  # def matches_for(sorted_codepoints, processed_dictionary) do
+  #   # for each word in the processed_dictionary, try subtracting
+  #   # only the ones found in the top level phrase are possible to find in
+  #   # sub-phrases...
+  # end
+  #
+  # # TODO - maybe make this List.without
+  # def without(haystack, needles) do
+  # end
 
 end
