@@ -32,11 +32,22 @@ defmodule Wordular.AnagramsTest do
     assert actual == expected
   end
 
-  test "is awesome!!! oh yayer" do
-    IO.puts Anagrams.find_entry_sets_for(
-      Anagram.sorted_codepoints("racecar"), 
-      ["race", "car", "are"] |> Enum.into(HashSet.new, fn x -> Anagram.sorted_codepoints(x) end )
+  test "can find 'raw' anagrams (the unique lists of letters that can be pulled from the phrase)" do
+    result = Anagrams.find_entry_sets_for(
+      Anagrams.sorted_codepoints("racecar"), 
+      ["race", "car", "are"] |> Enum.into(HashSet.new, fn x -> Anagrams.sorted_codepoints(x) end )
     )
+    one_anagram = [Anagrams.sorted_codepoints("race"), Anagrams.sorted_codepoints("car")] |> Enum.into(HashSet.new)
+    all_anagrams = Set.put(HashSet.new, one_anagram)
+    assert result == all_anagrams
+  end
+
+  test "subtractable_from" do
+    assert Anagrams.subtractable_from(["a", "b"], ["a", "b", "c"]) == true
+    assert Anagrams.subtractable_from(["a", "b", "d"], ["a", "b", "c"]) == false
+    assert Anagrams.subtractable_from(["a", "b", "d"], ["a", "d"]) == false
+    assert Anagrams.subtractable_from([], ["a", "d"]) == true
+    assert Anagrams.subtractable_from(["a", "b", "d"], []) == false
   end
 
   # test "can find dictionary matches for an empty phrase" do

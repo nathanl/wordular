@@ -62,8 +62,11 @@ defmodule Anagrams do
     output_pd
   end
 
+  # returns map with entries like ["d", "g", "o"] => ["god", "dog"]
   defp processed_dictionary([current_word | remaining_words], output_pd) do
+    #"dog" -> ["d", "g", "o"] sorted codepoints
     current_word_chars = sorted_codepoints(current_word)
+    #put sorted codepoints into map with "dog" as value.
     if Map.has_key?(output_pd, current_word_chars) do
       existing_entry = Map.get(output_pd, current_word_chars)
       updated_pd = Map.put(output_pd, current_word_chars, existing_entry ++ [current_word])
@@ -73,10 +76,14 @@ defmodule Anagrams do
     processed_dictionary(remaining_words, updated_pd)
   end
 
+  # Top level function
+  # phrase is a string
+  # dictionary is a set of strings
   def for2(phrase, dictionary) do
     pd = processed_dictionary(dictionary)
-    entry_sets = find_entry_sets_for(sorted_codepoints(phrase), Map.keys(pd) |> Enum.into(HashSet.new))
-    # expand those into their possible anagrams
+    dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
+    entry_sets = find_entry_sets_for(sorted_codepoints(phrase), dict_entries)
+    # TODO: expand those into their possible anagrams
   end
 
   # define base case
@@ -90,15 +97,34 @@ defmodule Anagrams do
   # return a set of entry sets - each entry set is a set of entries, each
   # entry is a sorted_codepoints, each entry set contains exactly the letters
   # of the input phrase
+  # dict_entries is an enumerable.
+  # returns a Set.
   def find_entry_sets_for(phrase, dict_entries) do
     usable_entries = usable_entries_for(dict_entries, phrase) # TODO define this
-    if Set.size(usable_entries) == 0 do
+    if Enum.count(usable_entries) == 0 do
       HashSet.new
     else
-      x = for entry <- usable_entries, entry_set <- find_entry_sets_for( (without(phrase, entry)), usable_entries), do: entry_set.put(entry)
+      x = for entry <- usable_entries, entry_set <- find_entry_sets_for(phrase -- entry, usable_entries), do: Set.put(entry_set, entry)
       x |> Enum.into(HashSet.new)
     end
   end
+
+  def usable_entries_for(dict_entries, phrase) do
+    # return a list comprehension that selects subtractable dudes
+    for entry <- dict_entries, subtractable_from(entry, phrase), do: entry
+    # I think that's it.
+  end
+
+  def subtractable_from(needles, haystack) do
+    thing = haystack -- needles
+    expected_length = Enum.count(haystack) - Enum.count(needles)
+    expected_length == Enum.count(thing)
+  end
+
+    # for each entry in dict_entries,
+    #  if we can subtract entry from phrase,
+    #    keep it
+    # return what we kept
 
   # # success base case for recursion
   # def matches_for([], processed_dictionary) do
@@ -111,8 +137,5 @@ defmodule Anagrams do
   #   # sub-phrases...
   # end
   #
-  # # TODO - maybe make this List.without
-  # def without(haystack, needles) do
-  # end
 
 end
