@@ -64,6 +64,17 @@ defmodule Wordular.AnagramsTest do
     assert Anagrams.subtractable_from?(["a", "b", "d"], []) == false
   end
 
+  test "human_readable" do
+    anagram = [["a","c","e","r"], ["a","c","r"]]
+    processed_dictionary = %{
+      ["a", "c", "e", "r"] => ["race", "care"],
+      ["a", "c", "r"] => ["car"],
+    }
+    assert((Anagrams.human_readable(anagram, processed_dictionary) |> Enum.sort) == [
+      "care car", "race car"
+    ])
+  end
+
   # test "can find dictionary matches for an empty phrase" do
   #   dictionary = %{
   #     ["a", "b", "t"] => ["bat", "tab"],

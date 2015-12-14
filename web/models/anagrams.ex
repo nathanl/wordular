@@ -51,7 +51,7 @@ defmodule Anagrams do
   def letterbag(string) do
     string
     |> String.codepoints
-    |> Enum.reject(fn (x) -> x == " " end)
+    |> Enum.reject(&(&1 == " "))
     |> Enum.sort
   end
 
@@ -84,7 +84,31 @@ defmodule Anagrams do
     pd = processed_dictionary(dictionary)
     dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
     anagrams = anagrams_for(letterbag(phrase), dict_entries)
+    anagrams |> Enum.map(&human_readable(&1, pd)) |> Enum.flatten
     # TODO: expand those into their possible "human-readable" anagrams
+    # Meaning: make every possible combination of human-readable words (found in pd)
+    # from these letterbags
+  end
+
+  def human_readable(anagram, processed_dictionary) do
+    anagram
+    #input would be an anagram like:
+    # [
+    #  letterbag1
+    #  letterbag2
+    #  letterbag3
+    # ]
+    #
+    #and figure out the dictionary values for each one, like:
+    #
+    # [
+    #  ["word1", "word2"],
+    #  ["word3"],
+    #  ["word4", "word5", "word6"]
+    # ]
+    #
+    #and then say...
+
   end
 
   # define base case
