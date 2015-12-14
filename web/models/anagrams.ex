@@ -48,7 +48,7 @@ defmodule Anagrams do
     ["bat", "tab", "cat", "be", "at", "a", "bet"]
   end
 
-  def sorted_codepoints(string) do
+  def letterbag(string) do
     string
     |> String.codepoints
     |> Enum.reject(fn (x) -> x == " " end)
@@ -66,7 +66,7 @@ defmodule Anagrams do
   # returns map with entries like ["d", "g", "o"] => ["god", "dog"]
   defp processed_dictionary([current_word | remaining_words], output_pd) do
     #"dog" -> ["d", "g", "o"] sorted codepoints
-    current_word_chars = sorted_codepoints(current_word)
+    current_word_chars = letterbag(current_word)
     #put sorted codepoints into map with "dog" as value.
     if Map.has_key?(output_pd, current_word_chars) do
       existing_entry = Map.get(output_pd, current_word_chars)
@@ -83,29 +83,29 @@ defmodule Anagrams do
   def for2(phrase, dictionary) do
     pd = processed_dictionary(dictionary)
     dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
-    entry_sets = find_entry_sets_for(sorted_codepoints(phrase), dict_entries)
+    entry_sets = anagrams_for(letterbag(phrase), dict_entries)
     # TODO: expand those into their possible "human-readable" anagrams
   end
 
   # define base case
-  def find_entry_sets_for([], _dict_entries) do
+  def anagrams_for([], _dict_entries) do
     Set.put(HashSet.new, HashSet.new)
   end
 
   # catbat
   # set(set(["a", "b", "t"], ["a", "c", "t"]), ...)
-  # phrase is a sorted_codepoints; dict_entries is a set of sorted_codepoints
+  # phrase is a letterbag; dict_entries is a set of letterbag
   # return a set of entry sets - each entry set is a set of entries, each
-  # entry is a sorted_codepoints, each entry set contains exactly the letters
+  # entry is a letterbag, each entry set contains exactly the letters
   # of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
-  def find_entry_sets_for(phrase, dict_entries) do
+  def anagrams_for(phrase, dict_entries) do
     usable_entries = usable_entries_for(dict_entries, phrase)
     if Enum.count(usable_entries) == 0 do
       HashSet.new
     else
-      x = for entry <- usable_entries, entry_set <- find_entry_sets_for(phrase -- entry, usable_entries), do: Set.put(entry_set, entry)
+      x = for entry <- usable_entries, entry_set <- anagrams_for(phrase -- entry, usable_entries), do: Set.put(entry_set, entry)
       x |> Enum.into(HashSet.new)
     end
   end
@@ -132,8 +132,8 @@ defmodule Anagrams do
   #   processed_dictionary
   # end
   #
-  # def matches_for(sorted_codepoints, processed_dictionary) do
-  #   # for each word in the processed_dictionary, try subtracting
+  # def matches_for(letterbag, processed_dictionary) do
+  #   # for each letterbag in the processed_dictionary, try subtracting
   #   # only the ones found in the top level phrase are possible to find in
   #   # sub-phrases...
   # end

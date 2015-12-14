@@ -20,7 +20,7 @@ defmodule Wordular.AnagramsTest do
   end
 
   test "can convert a string to sorted codepoints" do
-    assert Anagrams.sorted_codepoints("nappy") == ["a", "n", "p", "p", "y"]
+    assert Anagrams.letterbag("nappy") == ["a", "n", "p", "p", "y"]
   end
 
   test "can map dictionary words by character list" do
@@ -33,24 +33,24 @@ defmodule Wordular.AnagramsTest do
   end
 
   test "can find 'raw' anagrams (the unique lists of letters that can be pulled from the phrase)" do
-    result = Anagrams.find_entry_sets_for(
-      Anagrams.sorted_codepoints("racecar"), 
-      ["race", "car", "are"] |> Enum.into(HashSet.new, fn x -> Anagrams.sorted_codepoints(x) end )
+    result = Anagrams.anagrams_for(
+      Anagrams.letterbag("racecar"), 
+      ["race", "car", "are"] |> Enum.into(HashSet.new, fn x -> Anagrams.letterbag(x) end )
     )
-    one_anagram = [Anagrams.sorted_codepoints("race"), Anagrams.sorted_codepoints("car")] |> Enum.into(HashSet.new)
+    one_anagram = [Anagrams.letterbag("race"), Anagrams.letterbag("car")] |> Enum.into(HashSet.new)
     all_anagrams = Set.put(HashSet.new, one_anagram)
     assert result == all_anagrams
   end
 
   test "handles duplicated words in anagram result" do
-    result = Anagrams.find_entry_sets_for(
-      Anagrams.sorted_codepoints("apple apple racecar"), 
-      ["race", "car", "apple"] |> Enum.into(HashSet.new, fn x -> Anagrams.sorted_codepoints(x) end )
+    result = Anagrams.anagrams_for(
+      Anagrams.letterbag("apple apple racecar"), 
+      ["race", "car", "apple"] |> Enum.into(HashSet.new, fn x -> Anagrams.letterbag(x) end )
     )
     # The problem is that we were thinking an anagram would never have duplicate words, so we defined an anagram
-    # as a Set of sorted_codepoints.  It should have been a List of sorted_codepoints.  TODO: change that throughout the code.
-    one_anagram = [Anagrams.sorted_codepoints("race"), Anagrams.sorted_codepoints("car"), Anagrams.sorted_codepoints("apple"),
-                   Anagrams.sorted_codepoints("apple") ]
+    # as a Set of letterbag.  It should have been a List of letterbag.  TODO: change that throughout the code.
+    one_anagram = [Anagrams.letterbag("race"), Anagrams.letterbag("car"), Anagrams.letterbag("apple"),
+                   Anagrams.letterbag("apple") ]
     all_anagrams = Set.put(HashSet.new, one_anagram)
     assert result == all_anagrams
 
