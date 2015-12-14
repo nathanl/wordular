@@ -35,9 +35,9 @@ defmodule Wordular.AnagramsTest do
   test "can find 'raw' anagrams (the unique lists of letters that can be pulled from the phrase)" do
     result = Anagrams.anagrams_for(
       Anagrams.letterbag("racecar"), 
-      ["race", "car", "are"] |> Enum.into(HashSet.new, fn x -> Anagrams.letterbag(x) end )
+      ["are", "car", "race"] |> Enum.into(HashSet.new, fn x -> Anagrams.letterbag(x) end )
     )
-    one_anagram = [Anagrams.letterbag("race"), Anagrams.letterbag("car")] |> Enum.into(HashSet.new)
+    one_anagram = [Anagrams.letterbag("race"), Anagrams.letterbag("car")]
     all_anagrams = Set.put(HashSet.new, one_anagram)
     assert result == all_anagrams
   end

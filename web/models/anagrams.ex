@@ -83,13 +83,13 @@ defmodule Anagrams do
   def for2(phrase, dictionary) do
     pd = processed_dictionary(dictionary)
     dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
-    entry_sets = anagrams_for(letterbag(phrase), dict_entries)
+    anagrams = anagrams_for(letterbag(phrase), dict_entries)
     # TODO: expand those into their possible "human-readable" anagrams
   end
 
   # define base case
   def anagrams_for([], _dict_entries) do
-    Set.put(HashSet.new, HashSet.new)
+    Set.put(HashSet.new, [])
   end
 
   # catbat
@@ -105,7 +105,7 @@ defmodule Anagrams do
     if Enum.count(usable_entries) == 0 do
       HashSet.new
     else
-      x = for entry <- usable_entries, entry_set <- anagrams_for(phrase -- entry, usable_entries), do: Set.put(entry_set, entry)
+      x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries), do: Enum.sort([ entry | anagram ])
       x |> Enum.into(HashSet.new)
     end
   end
