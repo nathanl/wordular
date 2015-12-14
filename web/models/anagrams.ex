@@ -51,6 +51,7 @@ defmodule Anagrams do
   def sorted_codepoints(string) do
     string
     |> String.codepoints
+    |> Enum.reject(fn (x) -> x == " " end)
     |> Enum.sort
   end
 
@@ -83,7 +84,7 @@ defmodule Anagrams do
     pd = processed_dictionary(dictionary)
     dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
     entry_sets = find_entry_sets_for(sorted_codepoints(phrase), dict_entries)
-    # TODO: expand those into their possible anagrams
+    # TODO: expand those into their possible "human-readable" anagrams
   end
 
   # define base case
@@ -100,7 +101,7 @@ defmodule Anagrams do
   # dict_entries is an enumerable.
   # returns a Set.
   def find_entry_sets_for(phrase, dict_entries) do
-    usable_entries = usable_entries_for(dict_entries, phrase) # TODO define this
+    usable_entries = usable_entries_for(dict_entries, phrase)
     if Enum.count(usable_entries) == 0 do
       HashSet.new
     else
@@ -111,11 +112,11 @@ defmodule Anagrams do
 
   def usable_entries_for(dict_entries, phrase) do
     # return a list comprehension that selects subtractable dudes
-    for entry <- dict_entries, subtractable_from(entry, phrase), do: entry
+    for entry <- dict_entries, subtractable_from?(entry, phrase), do: entry
     # I think that's it.
   end
 
-  def subtractable_from(needles, haystack) do
+  def subtractable_from?(needles, haystack) do
     thing = haystack -- needles
     expected_length = Enum.count(haystack) - Enum.count(needles)
     expected_length == Enum.count(thing)

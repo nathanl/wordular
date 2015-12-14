@@ -42,12 +42,26 @@ defmodule Wordular.AnagramsTest do
     assert result == all_anagrams
   end
 
-  test "subtractable_from" do
-    assert Anagrams.subtractable_from(["a", "b"], ["a", "b", "c"]) == true
-    assert Anagrams.subtractable_from(["a", "b", "d"], ["a", "b", "c"]) == false
-    assert Anagrams.subtractable_from(["a", "b", "d"], ["a", "d"]) == false
-    assert Anagrams.subtractable_from([], ["a", "d"]) == true
-    assert Anagrams.subtractable_from(["a", "b", "d"], []) == false
+  test "handles duplicated words in anagram result" do
+    result = Anagrams.find_entry_sets_for(
+      Anagrams.sorted_codepoints("apple apple racecar"), 
+      ["race", "car", "apple"] |> Enum.into(HashSet.new, fn x -> Anagrams.sorted_codepoints(x) end )
+    )
+    # The problem is that we were thinking an anagram would never have duplicate words, so we defined an anagram
+    # as a Set of sorted_codepoints.  It should have been a List of sorted_codepoints.  TODO: change that throughout the code.
+    one_anagram = [Anagrams.sorted_codepoints("race"), Anagrams.sorted_codepoints("car"), Anagrams.sorted_codepoints("apple"),
+                   Anagrams.sorted_codepoints("apple") ]
+    all_anagrams = Set.put(HashSet.new, one_anagram)
+    assert result == all_anagrams
+
+  end
+
+  test "subtractable_from?" do
+    assert Anagrams.subtractable_from?(["a", "b"], ["a", "b", "c"]) == true
+    assert Anagrams.subtractable_from?(["a", "b", "d"], ["a", "b", "c"]) == false
+    assert Anagrams.subtractable_from?(["a", "b", "d"], ["a", "d"]) == false
+    assert Anagrams.subtractable_from?([], ["a", "d"]) == true
+    assert Anagrams.subtractable_from?(["a", "b", "d"], []) == false
   end
 
   # test "can find dictionary matches for an empty phrase" do
