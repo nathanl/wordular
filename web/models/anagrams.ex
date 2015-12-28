@@ -49,7 +49,7 @@ defmodule Anagrams do
   end
 
   # define base case
-  def anagrams_for([], _dict_entries) do
+  defp anagrams_for([], _dict_entries) do
     Set.put(HashSet.new, [])
   end
 
@@ -61,7 +61,7 @@ defmodule Anagrams do
   # of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
-  def anagrams_for(phrase, dict_entries) do
+  defp anagrams_for(phrase, dict_entries) do
     usable_entries = usable_entries_for(dict_entries, phrase)
     if Enum.count(usable_entries) == 0 do
       HashSet.new
