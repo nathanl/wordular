@@ -1,6 +1,14 @@
 # NOTE: see anagrams_ideas.md
 defmodule Anagrams do
 
+  def load_human_readable_dictionary(filename) do
+    {:ok, file_contents} = File.read(filename)
+    file_contents
+    |> String.split("\n")
+    |> Enum.map(&String.strip(&1))
+    |> Enum.reject(&(&1 == ""))
+  end
+
   def for(phrase) do
     phrase
     |> String.downcase
@@ -40,10 +48,10 @@ defmodule Anagrams do
   end
 
   def is_a_word?(possible_word) do
-    possible_word in dictionary
+    possible_word in human_readable_dictionary
   end
 
-  def dictionary do
+  def human_readable_dictionary do
     # NOTE: should always be downcased
     ["bat", "tab", "cat", "be", "at", "a", "bet"]
   end
@@ -55,42 +63,44 @@ defmodule Anagrams do
     |> Enum.sort
   end
 
-  def processed_dictionary(dictionary) do
-    processed_dictionary(dictionary, %{})
+  def dictionary(human_readable_dictionary) do
+    dictionary(human_readable_dictionary, %{})
   end
 
-  defp processed_dictionary([], output_pd) do
-    output_pd
+  defp dictionary([], output_dict) do
+    output_dict
   end
 
   # returns map with entries like ["d", "g", "o"] => ["god", "dog"]
-  defp processed_dictionary([current_word | remaining_words], output_pd) do
+  defp dictionary([current_word | remaining_words], output_dict) do
     #"dog" -> ["d", "g", "o"] sorted codepoints
     current_word_chars = letterbag(current_word)
     #put sorted codepoints into map with "dog" as value.
-    if Map.has_key?(output_pd, current_word_chars) do
-      existing_entry = Map.get(output_pd, current_word_chars)
-      updated_pd = Map.put(output_pd, current_word_chars, existing_entry ++ [current_word])
+    if Map.has_key?(output_dict, current_word_chars) do
+      existing_entry = Map.get(output_dict, current_word_chars)
+      updated_dict = Map.put(output_dict, current_word_chars, existing_entry ++ [current_word])
     else
-      updated_pd = Map.put(output_pd, current_word_chars, [current_word])
+      updated_dict = Map.put(output_dict, current_word_chars, [current_word])
     end
-    processed_dictionary(remaining_words, updated_pd)
+    dictionary(remaining_words, updated_dict)
   end
 
   # Top level function
   # phrase is a string
-  # dictionary is a set of strings
-  def for2(phrase, dictionary) do
-    pd = processed_dictionary(dictionary)
+  # human_readable_dictionary is a set of strings
+  def for2(phrase, human_readable_dictionary) do
+    pd = dictionary(human_readable_dictionary)
+    IO.puts("processed.  length is #{Enum.count(pd)}")
     dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
     anagrams = anagrams_for(letterbag(phrase), dict_entries)
-    anagrams |> Enum.map(&human_readable(&1, pd)) |> Enum.flatten
+    anagrams
+    # anagrams |> Enum.map(&human_readable(&1, pd)) |> Enum.flatten
     # TODO: expand those into their possible "human-readable" anagrams
     # Meaning: make every possible combination of human-readable words (found in pd)
     # from these letterbags
   end
 
-  def human_readable(anagram, processed_dictionary) do
+  def human_readable(anagram, dictionary) do
     anagram
     #input would be an anagram like:
     # [

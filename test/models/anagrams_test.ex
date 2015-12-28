@@ -24,7 +24,7 @@ defmodule Wordular.AnagramsTest do
   end
 
   test "can map dictionary words by character list" do
-    actual = Anagrams.processed_dictionary(["bat", "tab", "hat"])
+    actual = Anagrams.dictionary(["bat", "tab", "hat"])
     expected = %{
       ["a", "b", "t"] => ["bat", "tab"],
       ["a", "h", "t"] => ["hat"],
@@ -66,13 +66,22 @@ defmodule Wordular.AnagramsTest do
 
   test "human_readable" do
     anagram = [["a","c","e","r"], ["a","c","r"]]
-    processed_dictionary = %{
+    dictionary = %{
       ["a", "c", "e", "r"] => ["race", "care"],
       ["a", "c", "r"] => ["car"],
     }
-    assert((Anagrams.human_readable(anagram, processed_dictionary) |> Enum.sort) == [
+    assert((Anagrams.human_readable(anagram, dictionary) |> Enum.sort) == [
       "care car", "race car"
     ])
+  end
+
+  @tag timeout: 40000
+  test "a big ol realistic test" do
+    hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+    # results = Anagrams.for2("racecars are rad", hr_dict)
+    results = Anagrams.for2("racecar", hr_dict)
+    IO.puts "got results"
+    IO.inspect(Enum.take(results, 2))
   end
 
   # test "can find dictionary matches for an empty phrase" do
