@@ -2,23 +2,6 @@
 defmodule Wordular.AnagramsTest do
   use ExUnit.Case, async: true
 
-  test "knows the anagrams for 'bat'" do
-    assert Anagrams.for("bat") == ["bat", "tab"]
-  end
-
-  test "can generate anagrams with spaces" do
-    assert "be at" in Anagrams.for("beat")
-    assert "a bet" in Anagrams.for("beat")
-  end
-
-  test "can make some permutations" do
-    assert Anagrams.permutations(["a", "b"]) == [["a", "b"], ["b", "a"]]
-  end 
-
-  test "can permutate an empty list" do
-    assert Anagrams.permutations([]) == [[]]
-  end
-
   test "can convert a string to sorted codepoints" do
     assert Anagrams.letterbag("nappy") == ["a", "n", "p", "p", "y"]
   end
@@ -77,43 +60,11 @@ defmodule Wordular.AnagramsTest do
 
   @tag timeout: 40000
   test "a big ol realistic test" do
-    hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
-    # results = Anagrams.for2("racecars are rad", hr_dict)
-    results = Anagrams.for2("racecar", hr_dict)
-    IO.inspect(Enum.take(results, 20))
+    IO.puts("SKIPPING A TEST")
+    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+    # # results = Anagrams.for2("racecars are rad", hr_dict)
+    # results = Anagrams.for2("racecar", hr_dict)
+    # IO.inspect(Enum.take(results, 20))
   end
-
-  # test "can find dictionary matches for an empty phrase" do
-  #   dictionary = %{
-  #     ["a", "b", "t"] => ["bat", "tab"],
-  #     ["a", "h", "t"] => ["hat"],
-  #   }
-  #
-  #   actual = Anagrams.matches_for([], dictionary)
-  #   assert actual == dictionary
-  # end
-  #
-  # test "can find dictionary matches for a non-empty phrase" do
-  #   dictionary = %{
-  #     ["a", "b", "t"] => ["bat", "tab"],
-  #     ["a", "h", "t"] => ["hat"],
-  #     ["m", "y"]      => ["my"],
-  #   }
-  #   expected = %{
-  #     ["a", "b", "t"] => ["bat", "tab"],
-  #     ["a", "h", "t"] => ["hat"],
-  #   }
-  #   actual = Anagrams.matches_for(["a", "a", "b", "h", "t", "t"], dictionary)
-  #   assert actual == expected
-  # end
-  #
-  # test "can remove one list from another" do
-  #   assert Anagrams.without(["a", "b", "c"], ["a", "b"]) == ["c"]
-  #   assert Anagrams.without(["b", "b", "c"], ["b", "c"]) == ["b"]
-  #   assert Anagrams.without(["b", "b", "c"], ["c"])      == ["b", "b"]
-  #   assert Anagrams.without(["a", "b", "c"], ["a", "a"]) == nil
-  #   assert Anagrams.without(["a", "b", "c"], ["a", "q"]) == nil
-  # end
-
 
 end

@@ -9,53 +9,6 @@ defmodule Anagrams do
     |> Enum.reject(&(&1 == ""))
   end
 
-  def for(phrase) do
-    phrase
-    |> String.downcase
-    |> rearrangements_of
-    |> Enum.filter(&consists_of_words?(&1))
-  end
-
-  def rearrangements_of(phrase) do
-    String.codepoints(phrase)
-    |> permutations
-    |> Enum.flat_map(&every_possible_spacing(&1))
-    |> Enum.map(&Enum.join(&1, ""))
-    |> Enum.uniq
-  end
-
-  def permutations([]) do
-    [[]]
-  end
-
-  def permutations(list) do
-    for h <- list, t <- permutations(list -- [h]), do: [h | t]
-  end
-
-  def every_possible_spacing([x]) do
-    [[x]]
-  end
-
-  def every_possible_spacing([head | tail]) do
-    tail_spaces = every_possible_spacing(tail)
-    a = Enum.map(tail_spaces, fn(x) -> [head | x] end)
-    b = Enum.map(tail_spaces, fn(x) -> [head | [" " | x]] end)
-    a ++ b
-  end
-
-  def consists_of_words?(phrase) do
-    phrase |> String.split |> Enum.all?(&is_a_word?(&1))
-  end
-
-  def is_a_word?(possible_word) do
-    possible_word in human_readable_dictionary
-  end
-
-  def human_readable_dictionary do
-    # NOTE: should always be downcased
-    ["bat", "tab", "cat", "be", "at", "a", "bet"]
-  end
-
   def letterbag(string) do
     string
     |> String.codepoints
@@ -146,22 +99,5 @@ defmodule Anagrams do
     expected_length = Enum.count(haystack) - Enum.count(needles)
     expected_length == Enum.count(thing)
   end
-
-    # for each entry in dict_entries,
-    #  if we can subtract entry from phrase,
-    #    keep it
-    # return what we kept
-
-  # # success base case for recursion
-  # def matches_for([], processed_dictionary) do
-  #   processed_dictionary
-  # end
-  #
-  # def matches_for(letterbag, processed_dictionary) do
-  #   # for each letterbag in the processed_dictionary, try subtracting
-  #   # only the ones found in the top level phrase are possible to find in
-  #   # sub-phrases...
-  # end
-  #
 
 end
