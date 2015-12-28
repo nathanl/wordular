@@ -19,6 +19,8 @@ defmodule Anagrams do
     |> Enum.reject(&(&1 == ""))
   end
 
+  # Sorted, non-unique list of codepoints
+  # "alpha" -> ["a", "a", "h", "l", "p"]
   def letterbag(string) do
     string
     |> String.codepoints
@@ -36,33 +38,14 @@ defmodule Anagrams do
 
   # returns map with entries like ["d", "g", "o"] => ["god", "dog"]
   defp dictionary([current_word | remaining_words], output_dict) do
-    #"dog" -> ["d", "g", "o"] sorted codepoints
-    current_word_chars = letterbag(current_word)
-    #put sorted codepoints into map with "dog" as value.
-    if Map.has_key?(output_dict, current_word_chars) do
-      existing_entry = Map.get(output_dict, current_word_chars)
-      updated_dict = Map.put(output_dict, current_word_chars, existing_entry ++ [current_word])
+    entry_letterbag = letterbag(current_word)
+    if Map.has_key?(output_dict, entry_letterbag) do
+      existing_entry = Map.get(output_dict, entry_letterbag)
+      updated_dict = Map.put(output_dict, entry_letterbag, existing_entry ++ [current_word])
     else
-      updated_dict = Map.put(output_dict, current_word_chars, [current_word])
+      updated_dict = Map.put(output_dict, entry_letterbag, [current_word])
     end
     dictionary(remaining_words, updated_dict)
-  end
-
-  def human_readable([], _dictionary) do
-    []
-  end
-
-  def human_readable([ letterbag ], dictionary) do
-    dictionary[letterbag]
-  end
-
-  # Convert a list of letterbags to a list of human-readable anagrams
-  # e.g. [ letterbag("race"), letterbag("car") ] =>
-  # [ "race car", "care car" ]
-  def human_readable(anagram, dictionary) do
-    [head | tail] = anagram
-    hr_anagrams = human_readable(tail, dictionary)
-    for hr_word <- dictionary[head], hr_anagram <- hr_anagrams, do: "#{hr_word} #{hr_anagram}"
   end
 
   # define base case
@@ -86,6 +69,24 @@ defmodule Anagrams do
       x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries), do: Enum.sort([ entry | anagram ])
       x |> Enum.into(HashSet.new)
     end
+  end
+
+  def human_readable([], _dictionary) do
+    []
+  end
+
+  def human_readable([ letterbag ], dictionary) do
+    dictionary[letterbag]
+  end
+
+  # Convert a list of letterbags to a list of human-readable anagrams
+  # e.g. [ letterbag("race"), letterbag("car") ] =>
+  # [ "race car", "care car" ]
+  def human_readable(anagram, dictionary) do
+    [head | tail] = anagram
+    hr_anagrams = human_readable(tail, dictionary)
+    output = for hr_word <- dictionary[head], hr_anagram <- hr_anagrams, do: Enum.sort([hr_word, hr_anagram]) |> Enum.join(" ")
+    Enum.sort(output)
   end
 
   def usable_entries_for(dict_entries, phrase) do

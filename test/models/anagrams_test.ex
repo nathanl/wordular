@@ -2,6 +2,25 @@
 defmodule Wordular.AnagramsTest do
   use ExUnit.Case, async: true
 
+  test "can find human-readable anagrams of a phrase using a dictionary" do
+    result = Anagrams.for "racecar", ["arc", "are", "car", "care", "race"]
+    assert result == ["arc care", "arc race", "car care", "car race"]
+  end
+
+  test "can handle duplicate words in the input phrase" do
+    result = Anagrams.for("apple racecar apple", ["race", "car", "apple"])
+    assert result == ["apple apple car race"]
+  end
+
+  @tag timeout: 40000
+  test "a big ol realistic test" do
+    IO.puts("SKIPPING A TEST")
+    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+    # # results = Anagrams.for("racecars are rad", hr_dict)
+    # results = Anagrams.for("racecar", hr_dict)
+    # IO.inspect(Enum.take(results, 20))
+  end
+
   test "can convert a string to sorted codepoints" do
     assert Anagrams.letterbag("nappy") == ["a", "n", "p", "p", "y"]
   end
@@ -15,30 +34,6 @@ defmodule Wordular.AnagramsTest do
     assert actual == expected
   end
 
-  test "can find 'raw' anagrams (the unique lists of letters that can be pulled from the phrase)" do
-    result = Anagrams.anagrams_for(
-      Anagrams.letterbag("racecar"), 
-      ["are", "car", "race"] |> Enum.into(HashSet.new, fn x -> Anagrams.letterbag(x) end )
-    )
-    one_anagram = [Anagrams.letterbag("race"), Anagrams.letterbag("car")]
-    all_anagrams = Set.put(HashSet.new, one_anagram)
-    assert result == all_anagrams
-  end
-
-  test "handles duplicated words in anagram result" do
-    result = Anagrams.anagrams_for(
-      Anagrams.letterbag("apple apple racecar"), 
-      ["race", "car", "apple"] |> Enum.into(HashSet.new, fn x -> Anagrams.letterbag(x) end )
-    )
-    # The problem is that we were thinking an anagram would never have duplicate words, so we defined an anagram
-    # as a Set of letterbag.  It should have been a List of letterbag.  TODO: change that throughout the code.
-    one_anagram = [Anagrams.letterbag("race"), Anagrams.letterbag("car"), Anagrams.letterbag("apple"),
-                   Anagrams.letterbag("apple") ]
-    all_anagrams = Set.put(HashSet.new, one_anagram)
-    assert result == all_anagrams
-
-  end
-
   test "subtractable_from?" do
     assert Anagrams.subtractable_from?(["a", "b"], ["a", "b", "c"]) == true
     assert Anagrams.subtractable_from?(["a", "b", "d"], ["a", "b", "c"]) == false
@@ -47,24 +42,15 @@ defmodule Wordular.AnagramsTest do
     assert Anagrams.subtractable_from?(["a", "b", "d"], []) == false
   end
 
-  test "human_readable" do
+  test "human_readable builds a 'cartesian join' of words the letterbags can spell" do
     anagram = [["a","c","e","r"], ["a","c","r"]]
     dictionary = %{
       ["a", "c", "e", "r"] => ["race", "care"],
       ["a", "c", "r"] => ["car"],
     }
     assert((Anagrams.human_readable(anagram, dictionary) |> Enum.sort) == [
-      "care car", "race car"
+      "car care", "car race"
     ])
-  end
-
-  @tag timeout: 40000
-  test "a big ol realistic test" do
-    IO.puts("SKIPPING A TEST")
-    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
-    # # results = Anagrams.for("racecars are rad", hr_dict)
-    # results = Anagrams.for("racecar", hr_dict)
-    # IO.inspect(Enum.take(results, 20))
   end
 
 end
