@@ -1,6 +1,16 @@
 # NOTE: see anagrams_ideas.md
 defmodule Anagrams do
 
+  # Top level function
+  # phrase is a string
+  # human_readable_dictionary is a set of strings
+  def for(phrase, human_readable_dictionary) do
+    dict = dictionary(human_readable_dictionary)
+    dict_entries = Map.keys(dict) |> Enum.into(HashSet.new)
+    anagrams = anagrams_for(letterbag(phrase), dict_entries)
+    anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
+  end
+
   def load_human_readable_dictionary(filename) do
     {:ok, file_contents} = File.read(filename)
     file_contents
@@ -38,16 +48,6 @@ defmodule Anagrams do
     dictionary(remaining_words, updated_dict)
   end
 
-  # Top level function
-  # phrase is a string
-  # human_readable_dictionary is a set of strings
-  def for2(phrase, human_readable_dictionary) do
-    dict = dictionary(human_readable_dictionary)
-    dict_entries = Map.keys(dict) |> Enum.into(HashSet.new)
-    anagrams = anagrams_for(letterbag(phrase), dict_entries)
-    anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
-  end
-
   def human_readable([], _dictionary) do
     []
   end
@@ -56,7 +56,7 @@ defmodule Anagrams do
     dictionary[letterbag]
   end
 
-  # Convert a list of letterbags to a list of human-readably anagrams
+  # Convert a list of letterbags to a list of human-readable anagrams
   # e.g. [ letterbag("race"), letterbag("car") ] =>
   # [ "race car", "care car" ]
   def human_readable(anagram, dictionary) do

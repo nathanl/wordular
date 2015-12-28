@@ -62,8 +62,8 @@ defmodule Wordular.AnagramsTest do
   test "a big ol realistic test" do
     IO.puts("SKIPPING A TEST")
     # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
-    # # results = Anagrams.for2("racecars are rad", hr_dict)
-    # results = Anagrams.for2("racecar", hr_dict)
+    # # results = Anagrams.for("racecars are rad", hr_dict)
+    # results = Anagrams.for("racecar", hr_dict)
     # IO.inspect(Enum.take(results, 20))
   end
 
