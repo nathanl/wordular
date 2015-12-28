@@ -12,14 +12,16 @@ defmodule Wordular.AnagramsTest do
     assert result == ["apple apple car race"]
   end
 
-  @tag timeout: 40000
-  test "a big ol realistic test" do
-    IO.puts("SKIPPING A TEST")
-    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
-    # # results = Anagrams.for("racecars are rad", hr_dict)
-    # results = Anagrams.for("racecar", hr_dict)
-    # IO.inspect(Enum.take(results, 20))
-  end
+  # @tag timeout: 40000
+  # test "a big ol realistic test" do
+  #   # IO.puts("SKIPPING A TEST")
+  #   hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+  #   # results = Anagrams.for("racecars are rad", hr_dict)
+  #   results = Anagrams.for("racecares", hr_dict) # takes too long
+  #   IO.inspect("result count: #{Enum.count(results)}")
+  #   IO.inspect(Enum.max_by(results, fn(str) -> String.codepoints(str) |> Enum.filter(&(&1 == " ")) |> Enum.count end))
+  #   # IO.inspect(Enum.take(results, 20))
+  # end
 
   test "can convert a string to sorted codepoints" do
     assert Anagrams.letterbag("nappy") == ["a", "n", "p", "p", "y"]

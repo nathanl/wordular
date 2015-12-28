@@ -7,7 +7,7 @@ defmodule Anagrams do
   def for(phrase, human_readable_dictionary) do
     dict         = dictionary(human_readable_dictionary)
     dict_entries = Map.keys(dict) |> Enum.into(HashSet.new)
-    anagrams     = anagrams_for(letterbag(phrase), dict_entries)
+    anagrams     = anagrams_for(letterbag(phrase), dict_entries, %{})
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -50,7 +50,7 @@ defmodule Anagrams do
 
   # define base case
   # TODO - can I somehow match this and call it "empty phrase" for clarity?
-  defp anagrams_for([], _dict_entries) do
+  defp anagrams_for([], _dict_entries, _memoization_dict) do
     Set.put(HashSet.new, [])
   end
 
@@ -62,12 +62,30 @@ defmodule Anagrams do
   # of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
-  defp anagrams_for(phrase, dict_entries) do
+  # TODO - Memoize! Quick-and-dirty testing shows that almost all
+  # phrases are passed into anagrams_for more than once, so it seems that
+  # memoizing would save a ton of work
+  defp anagrams_for(phrase, dict_entries, memoization_dict) do
+    # TODO: memoize using something like the below.
+    # problem: how to pass the updated memoization dict to the recursive calls?
+    # we kind of have to get rid of our list comprehension and do a nested for loop,
+    # except those don't exist in elixir and you have to recurse instead of using for loops.
+
+    # if Map.has_key?(memoization_dict, entry_letterbag) do
+    #   existing_entry = Map.get(output_dict, entry_letterbag)
+    #   updated_dict = Map.put(output_dict, entry_letterbag, existing_entry ++ [current_word])
+    # else
+    #   updated_dict = Map.put(output_dict, entry_letterbag, [current_word])
+    # end
+
     usable_entries = usable_entries_for(dict_entries, phrase)
+
     if Enum.count(usable_entries) == 0 do
       HashSet.new
     else
-      x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries), do: Enum.sort([ entry | anagram ])
+      # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster?
+      # Also, letterbags are sorted so -- is less efficient than we could do this (or maybe we could use a hash of counters)
+      x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries, memoization_dict), do: Enum.sort([ entry | anagram ])
       x |> Enum.into(HashSet.new)
     end
   end
