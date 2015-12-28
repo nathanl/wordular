@@ -5,9 +5,9 @@ defmodule Anagrams do
   # phrase is a string
   # human_readable_dictionary is a set of strings
   def for(phrase, human_readable_dictionary) do
-    dict = dictionary(human_readable_dictionary)
+    dict         = dictionary(human_readable_dictionary)
     dict_entries = Map.keys(dict) |> Enum.into(HashSet.new)
-    anagrams = anagrams_for(letterbag(phrase), dict_entries)
+    anagrams     = anagrams_for(letterbag(phrase), dict_entries)
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -49,6 +49,7 @@ defmodule Anagrams do
   end
 
   # define base case
+  # TODO - can I somehow match this and call it "empty phrase" for clarity?
   defp anagrams_for([], _dict_entries) do
     Set.put(HashSet.new, [])
   end
