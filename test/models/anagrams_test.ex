@@ -80,8 +80,7 @@ defmodule Wordular.AnagramsTest do
     hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
     # results = Anagrams.for2("racecars are rad", hr_dict)
     results = Anagrams.for2("racecar", hr_dict)
-    IO.puts "got results"
-    IO.inspect(Enum.take(results, 2))
+    IO.inspect(Enum.take(results, 20))
   end
 
   # test "can find dictionary matches for an empty phrase" do

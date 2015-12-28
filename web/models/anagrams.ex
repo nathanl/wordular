@@ -89,36 +89,27 @@ defmodule Anagrams do
   # phrase is a string
   # human_readable_dictionary is a set of strings
   def for2(phrase, human_readable_dictionary) do
-    pd = dictionary(human_readable_dictionary)
-    IO.puts("processed.  length is #{Enum.count(pd)}")
-    dict_entries = Map.keys(pd) |> Enum.into(HashSet.new)
+    dict = dictionary(human_readable_dictionary)
+    dict_entries = Map.keys(dict) |> Enum.into(HashSet.new)
     anagrams = anagrams_for(letterbag(phrase), dict_entries)
-    anagrams
-    # anagrams |> Enum.map(&human_readable(&1, pd)) |> Enum.flatten
-    # TODO: expand those into their possible "human-readable" anagrams
-    # Meaning: make every possible combination of human-readable words (found in pd)
-    # from these letterbags
+    anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
-  def human_readable(anagram, dictionary) do
-    anagram
-    #input would be an anagram like:
-    # [
-    #  letterbag1
-    #  letterbag2
-    #  letterbag3
-    # ]
-    #
-    #and figure out the dictionary values for each one, like:
-    #
-    # [
-    #  ["word1", "word2"],
-    #  ["word3"],
-    #  ["word4", "word5", "word6"]
-    # ]
-    #
-    #and then say...
+  def human_readable([], _dictionary) do
+    []
+  end
 
+  def human_readable([ letterbag ], dictionary) do
+    dictionary[letterbag]
+  end
+
+  # Convert a list of letterbags to a list of human-readably anagrams
+  # e.g. [ letterbag("race"), letterbag("car") ] =>
+  # [ "race car", "care car" ]
+  def human_readable(anagram, dictionary) do
+    [head | tail] = anagram
+    hr_anagrams = human_readable(tail, dictionary)
+    for hr_word <- dictionary[head], hr_anagram <- hr_anagrams, do: "#{hr_word} #{hr_anagram}"
   end
 
   # define base case
