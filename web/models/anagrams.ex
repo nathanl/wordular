@@ -72,7 +72,7 @@ defmodule Anagrams do
       if Enum.count(usable_entries) == 0 do
         {HashSet.new, memoization_dict}
       else
-        # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster?
+        # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster? Then again, the existing anagram is probably < 10 words long...
         # Also, letterbags are sorted so -- is less efficient than we could do this (or maybe we could use a hash of counters)
         #   x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries, memoization_dict), do: Enum.sort([ entry | anagram ])
         #   x |> Enum.into(HashSet.new)
