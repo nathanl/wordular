@@ -12,6 +12,7 @@ defmodule Anagrams do
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
+  # Takes a filename, returns list with one string per non-empty line
   def load_human_readable_dictionary(filename) do
     {:ok, file_contents} = File.read(filename)
     file_contents
@@ -79,7 +80,7 @@ defmodule Anagrams do
         # end
 
         z = Enum.reduce(usable_entries, %{answers: [], mdict: memoization_dict}, fn(entry, acc) ->
-          {anagrams, memoization_dict} = anagrams_for(phrase -- entry, usable_entries, acc.mdict)
+          {anagrams, memoization_dict} = anagrams_for((phrase |> without(entry)), usable_entries, acc.mdict)
           y = for anagram <- anagrams do
             Enum.sort([ entry | anagram ])
           end
@@ -117,15 +118,19 @@ defmodule Anagrams do
   end
 
   def usable_entries_for(dict_entries, phrase) do
-    # return a list comprehension that selects subtractable dudes
     for entry <- dict_entries, subtractable_from?(entry, phrase), do: entry
-    # I think that's it.
   end
 
   def subtractable_from?(needles, haystack) do
-    thing = haystack -- needles
+    thing = haystack |> without(needles)
     expected_length = Enum.count(haystack) - Enum.count(needles)
     expected_length == Enum.count(thing)
+  end
+
+  # Takes two letterbags, subtracts one from the other
+  # TODO - implement more efficiently since we know that these are sorted?
+  def without(haystack, needles) do
+    haystack -- needles
   end
 
 end
