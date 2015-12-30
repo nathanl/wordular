@@ -6,6 +6,7 @@ defmodule Anagrams do
   # human_readable_dictionary is a set of strings
   def for(phrase, human_readable_dictionary) do
     dict          = dictionary(human_readable_dictionary)
+    IO.puts "parsed the dictionary"
     dict_entries  = Map.keys(dict) |> Enum.into(HashSet.new)
     {anagrams, _} = anagrams_for(letterbag(phrase), dict_entries, %{})
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten

@@ -12,15 +12,20 @@ defmodule Wordular.AnagramsTest do
     assert result == ["apple apple car race"]
   end
 
-  # @tag timeout: 40000
-  # test "a big ol realistic test" do
-  #   # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
-  #   hr_dict = Anagrams.load_human_readable_dictionary("/tmp/words") # remove words < 3 chars long, except "a"
-  #   # results = Anagrams.for("racecars are rad", hr_dict)
-  #   results = Anagrams.for("racecars are rad", hr_dict)
-  #   IO.inspect("result count: #{Enum.count(results)}")
-  #   IO.inspect(Enum.max_by(results, fn(str) -> String.codepoints(str) |> Enum.filter(&(&1 == " ")) |> Enum.count end))
-  # end
+  @tag timeout: 60000, big: true, slow: true
+  test "a big ol realistic test" do
+    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+    # hr_dict = Anagrams.load_human_readable_dictionary("/tmp/words") # remove words < 3 chars long, except "a"
+    hr_dict = Anagrams.load_human_readable_dictionary("/Users/nathanlong/code/wordular/tmp/possible_dictionary.txt")
+
+    IO.puts "loaded the dictionary file"
+    # results = Anagrams.for("racecars are rad", hr_dict)
+    results = Anagrams.for("racecars are rad", hr_dict)
+    # results = Anagrams.for("matthew wildeboer", hr_dict) # bogs down
+    IO.inspect results
+    IO.inspect("result count: #{Enum.count(results)}")
+    # IO.inspect(Enum.max_by(results, fn(str) -> String.codepoints(str) |> Enum.filter(&(&1 == " ")) |> Enum.count end))
+  end
 
   test "can convert a string to sorted codepoints" do
     assert Anagrams.letterbag("nappy") == ["a", "n", "p", "p", "y"]
