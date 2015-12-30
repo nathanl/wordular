@@ -48,13 +48,9 @@ defmodule Anagrams do
     dictionary(remaining_words, updated_dict)
   end
 
-  defp anagrams_for(phrase, dict_entries, memoization_dict) do
-    anagrams_for(phrase, dict_entries, memoization_dict, 0)
-  end
-
   # define base case
   # TODO - can I somehow match this and call it "empty phrase" for clarity?
-  defp anagrams_for([], _dict_entries, memoization_dict, depth) do
+  defp anagrams_for([], _dict_entries, memoization_dict) do
     {Set.put(HashSet.new, []), memoization_dict}
   end
 
@@ -66,8 +62,7 @@ defmodule Anagrams do
   # of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
-  defp anagrams_for(phrase, dict_entries, memoization_dict, depth) do
-
+  defp anagrams_for(phrase, dict_entries, memoization_dict) do
     if Map.has_key?(memoization_dict, phrase) do
       {memoization_dict[phrase], memoization_dict}
     else
@@ -83,7 +78,7 @@ defmodule Anagrams do
         # end
 
         z = Enum.reduce(usable_entries, %{answers: [], mdict: memoization_dict}, fn(entry, acc) ->
-          {anagrams, memoization_dict} = anagrams_for(phrase -- entry, usable_entries, acc.mdict, depth + 1)
+          {anagrams, memoization_dict} = anagrams_for(phrase -- entry, usable_entries, acc.mdict)
           y = for anagram <- anagrams do
             Enum.sort([ entry | anagram ])
           end
