@@ -7,7 +7,7 @@ defmodule Anagrams do
   def for(phrase, human_readable_dictionary) do
     dict          = dictionary(human_readable_dictionary)
     IO.puts "parsed the dictionary"
-    dict_entries  = Map.keys(dict) |> Enum.into(HashSet.new)
+    dict_entries  = MapSet.new(Map.keys(dict))
     {anagrams, _} = anagrams_for(letterbag(phrase), dict_entries, %{})
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
@@ -61,23 +61,20 @@ defmodule Anagrams do
         # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster? Then again, the existing anagram is probably < 10 words long...
         # Also, letterbags are sorted so -- is less efficient than we could do this (or maybe we could use a hash of counters)
         #   x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries, memoization_dict), do: Enum.sort([ entry | anagram ])
-        #   x |> Enum.into(HashSet.new)
+        #   MapSet.new(x)
         # end
 
         # TODO refactor
-        z = Enum.reduce(usable_entries, %{answers: [], mdict: memoization_dict}, fn(entry, acc) ->
-          {anagrams, memoization_dict} = anagrams_for((phrase |> without(entry)), usable_entries, acc.mdict)
-          y = for anagram <- anagrams do
-            Enum.sort([ entry | anagram ])
-          end
-          %{answers: (acc[:answers] ++ y), mdict: memoization_dict}
+        {answers, mdict} = Enum.reduce(usable_entries, {[], memoization_dict}, fn (entry, {answers, mdict}) ->
+          {anagrams, mdict} = anagrams_for((phrase |> without(entry)), usable_entries, mdict)
+          new_anagrams = for anagram <- anagrams, do: Enum.sort([entry | anagram])
+          {answers ++ new_anagrams, mdict}
         end)
 
-        x = z.answers |> Enum.into(HashSet.new)
-        mmm = z.mdict
+        result = MapSet.new(answers)
 
-      {x, Map.put(mmm, phrase, x)}
-    end
+        {result, Map.put(mdict, phrase, result)}
+      end
 
     end
 
