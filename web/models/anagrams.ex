@@ -83,22 +83,24 @@ defmodule Anagrams do
 
   end
 
-  # TODO: We are calling sort every time we recurse, but we really only need the
-  # final results sorted.  We should build up a list of unsorted lists of words,
-  # then do a single pass to convert it into a list of sorted strings.
-  
   # Convert a list of letterbags to a list of human-readable anagrams
   # e.g. [ letterbag("race"), letterbag("car") ] =>
   # [ "care car", "race car" ]
-  def human_readable([], _dictionary), do: []
-  def human_readable([ letterbag ], dictionary), do: dictionary[letterbag]
   def human_readable(anagram, dictionary) do
-    [head | tail] = anagram
-    hr_anagrams = human_readable(tail, dictionary)
-    output = for hr_word <- dictionary[head], hr_anagram <- hr_anagrams do
-      Enum.sort([hr_word, hr_anagram]) |> Enum.join(" ")
-    end
-    Enum.sort(output)
+    anagram
+    |> Enum.map(&(dictionary[&1]))
+    |> cartesian_product
+    |> Enum.map(&Enum.join(&1, " "))
+    |> Enum.sort
+  end
+
+  # cartesian_prod([0..2, 0..1, 0..2]) = [000, 001, 002, 010, 011, 012, 100...]
+  def cartesian_product([]), do: []
+  def cartesian_product(lists) do
+    Enum.reduce(lists, [ [] ], fn one_list, acc ->
+      # New acc is: everything we've built so far, with every new option prepended
+      for item <- one_list, subproduct <- acc, do: [item | subproduct]
+    end)
   end
 
   def usable_entries_for(dict_entries, phrase) do
