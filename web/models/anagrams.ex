@@ -8,7 +8,7 @@ defmodule Anagrams do
     dict          = dictionary(human_readable_dictionary)
     IO.puts "parsed the dictionary"
     dict_entries  = MapSet.new(Map.keys(dict))
-    {anagrams, _} = anagrams_for(letterbag(phrase), dict_entries, %{})
+    anagrams = anagrams_for(letterbag(phrase), dict_entries)
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -36,17 +36,18 @@ defmodule Anagrams do
     end)
   end
 
+  defp anagrams_for(phrase, dict_entries), do: anagrams_for(phrase, dict_entries, %{}) |> elem(0)
+
   # define base case
   defp anagrams_for(empty_phrase = [], _dict_entries, memoization_dict) do
     {MapSet.new([ empty_phrase ]), memoization_dict}
   end
 
   # catbat
-  # set(set(["a", "b", "t"], ["a", "c", "t"]), ...)
+  # set([["a", "b", "t"], ["a", "c", "t"]], ...)
   # phrase is a letterbag; dict_entries is a set of letterbag
-  # return a set of entry sets - each entry set is a set of entries, each
-  # entry is a letterbag, each entry set contains exactly the letters
-  # of the input phrase
+  # return a set of answers - each answer is a list of letterbags,
+  # each answer contains exactly the letters of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
   defp anagrams_for(phrase, dict_entries, memoization_dict) do
@@ -67,8 +68,8 @@ defmodule Anagrams do
         # TODO refactor
         {answers, mdict} = Enum.reduce(usable_entries, {[], memoization_dict}, fn (entry, {answers, mdict}) ->
           {anagrams, mdict} = anagrams_for((phrase |> without(entry)), usable_entries, mdict)
-          new_anagrams = for anagram <- anagrams, do: Enum.sort([entry | anagram])
-          {answers ++ new_anagrams, mdict}
+          new_anagrams = Enum.reduce(anagrams, answers, fn anagram, acc -> [Enum.sort([entry | anagram]) | acc] end)
+          {new_anagrams, mdict}
         end)
 
         result = MapSet.new(answers)
