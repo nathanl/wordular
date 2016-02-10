@@ -41,3 +41,17 @@ Another idea Michael suggested was to first use a set or bitset to
 decide whether "to" might contain "otto". If it has all the necessary
 letters (it does), we can then do a slower check to see if it has them
 in the necessary quantities (it doesn't). Could be O(1) vs O(N)
+
+--
+
+Memoize anagrams_for() via a macro:
+   memoize do
+     def anagrams_for(phrase, dict_entries) do
+       ...
+     end
+   end
+Yeah, I said it.
+This macro will start a key-value-store child process, then
+define anagrams_for(phrase, dict_entries) which
+first asks the child process if it has a result before doing
+the rest of its work and storing the result in the child process.

@@ -7,8 +7,8 @@ defmodule Anagrams do
   def for(phrase, human_readable_dictionary) do
     dict          = dictionary(human_readable_dictionary)
     IO.puts "parsed the dictionary"
-    dict_entries  = Map.keys(dict) |> Enum.into(HashSet.new)
-    {anagrams, _} = anagrams_for(letterbag(phrase), dict_entries, %{})
+    dict_entries  = MapSet.new(Map.keys(dict))
+    anagrams = anagrams_for(letterbag(phrase), dict_entries)
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -36,17 +36,18 @@ defmodule Anagrams do
     end)
   end
 
+  defp anagrams_for(phrase, dict_entries), do: anagrams_for(phrase, dict_entries, %{}) |> elem(0)
+
   # define base case
   defp anagrams_for(empty_phrase = [], _dict_entries, memoization_dict) do
     {MapSet.new([ empty_phrase ]), memoization_dict}
   end
 
   # catbat
-  # set(set(["a", "b", "t"], ["a", "c", "t"]), ...)
+  # set([["a", "b", "t"], ["a", "c", "t"]], ...)
   # phrase is a letterbag; dict_entries is a set of letterbag
-  # return a set of entry sets - each entry set is a set of entries, each
-  # entry is a letterbag, each entry set contains exactly the letters
-  # of the input phrase
+  # return a set of answers - each answer is a list of letterbags,
+  # each answer contains exactly the letters of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
   defp anagrams_for(phrase, dict_entries, memoization_dict) do
@@ -61,44 +62,43 @@ defmodule Anagrams do
         # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster? Then again, the existing anagram is probably < 10 words long...
         # Also, letterbags are sorted so -- is less efficient than we could do this (or maybe we could use a hash of counters)
         #   x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries, memoization_dict), do: Enum.sort([ entry | anagram ])
-        #   x |> Enum.into(HashSet.new)
+        #   MapSet.new(x)
         # end
 
         # TODO refactor
-        z = Enum.reduce(usable_entries, %{answers: [], mdict: memoization_dict}, fn(entry, acc) ->
-          {anagrams, memoization_dict} = anagrams_for((phrase |> without(entry)), usable_entries, acc.mdict)
-          y = for anagram <- anagrams do
-            Enum.sort([ entry | anagram ])
-          end
-          %{answers: (acc[:answers] ++ y), mdict: memoization_dict}
+        {answers, mdict} = Enum.reduce(usable_entries, {[], memoization_dict}, fn (entry, {answers, mdict}) ->
+          {anagrams, mdict} = anagrams_for((phrase |> without(entry)), usable_entries, mdict)
+          new_anagrams = Enum.reduce(anagrams, answers, fn anagram, acc -> [Enum.sort([entry | anagram]) | acc] end)
+          {new_anagrams, mdict}
         end)
 
-        x = z.answers |> Enum.into(HashSet.new)
-        mmm = z.mdict
+        result = MapSet.new(answers)
 
-      {x, Map.put(mmm, phrase, x)}
-    end
+        {result, Map.put(mdict, phrase, result)}
+      end
 
     end
 
   end
 
-  # TODO: We are calling sort every time we recurse, but we really only need the
-  # final results sorted.  We should build up a list of unsorted lists of words,
-  # then do a single pass to convert it into a list of sorted strings.
-  
   # Convert a list of letterbags to a list of human-readable anagrams
   # e.g. [ letterbag("race"), letterbag("car") ] =>
   # [ "care car", "race car" ]
-  def human_readable([], _dictionary), do: []
-  def human_readable([ letterbag ], dictionary), do: dictionary[letterbag]
   def human_readable(anagram, dictionary) do
-    [head | tail] = anagram
-    hr_anagrams = human_readable(tail, dictionary)
-    output = for hr_word <- dictionary[head], hr_anagram <- hr_anagrams do
-      Enum.sort([hr_word, hr_anagram]) |> Enum.join(" ")
-    end
-    Enum.sort(output)
+    anagram
+    |> Enum.map(&(dictionary[&1]))
+    |> cartesian_product
+    |> Enum.map(&Enum.join(&1, " "))
+    |> Enum.sort
+  end
+
+  # cartesian_prod([0..2, 0..1, 0..2]) = [000, 001, 002, 010, 011, 012, 100...]
+  def cartesian_product([]), do: []
+  def cartesian_product(lists) do
+    Enum.reduce(lists, [ [] ], fn one_list, acc ->
+      # New acc is: everything we've built so far, with every new option prepended
+      for item <- one_list, subproduct <- acc, do: [item | subproduct]
+    end)
   end
 
   def usable_entries_for(dict_entries, phrase) do
