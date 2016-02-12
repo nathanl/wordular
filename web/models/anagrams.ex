@@ -49,30 +49,21 @@ defmodule Anagrams do
   # dict_entries is an enumerable.
   # returns a Set.
   defp anagrams_for(phrase, dict_entries, cache_pid) do
-    cached_result = Agent.get(cache_pid, fn map -> map[phrase] end)
-
-    if cached_result != nil do
-      cached_result
-    else
+    require Memoizer
+    Memoizer.memoize phrase do
+      x = 2
+      IO.inspect phrase
       usable_entries = usable_entries_for(dict_entries, phrase)
-
-      result = if usable_entries == [] do
+      if usable_entries == [] do
         %MapSet{}
       else
-
         answers = for entry <- usable_entries,
-                      anagrams_without_this_entry = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid),
-                      smaller_anagram <- anagrams_without_this_entry,
-                      do:  Enum.sort([entry | smaller_anagram])
-
+        anagrams_without_this_entry = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid),
+        smaller_anagram <- anagrams_without_this_entry,
+        do:  Enum.sort([entry | smaller_anagram])
         MapSet.new(answers)
       end
-
-      Agent.update(cache_pid, fn map -> Map.put(map, phrase, result) end)
-      result
-
     end
-
   end
 
   # Convert a list of letterbags to a list of human-readable anagrams
