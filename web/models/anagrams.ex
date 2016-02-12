@@ -61,7 +61,7 @@ defmodule Anagrams do
     else
       usable_entries = usable_entries_for(dict_entries, phrase)
 
-      if usable_entries == [] do
+      result = if usable_entries == [] do
         %MapSet{}
       else
         # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster? Then again, the existing anagram is probably < 10 words long...
@@ -75,10 +75,11 @@ defmodule Anagrams do
           Enum.reduce(anagrams, answers, fn anagram, acc -> [Enum.sort([entry | anagram]) | acc] end)
         end)
 
-        result = MapSet.new(answers)
-        Agent.update(cache_pid, fn map -> Map.put(map, phrase, result) end)
-        result
+        MapSet.new(answers)
       end
+
+      Agent.update(cache_pid, fn map -> Map.put(map, phrase, result) end)
+      result
 
     end
 
