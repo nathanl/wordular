@@ -49,13 +49,8 @@ defmodule Anagrams do
   # dict_entries is an enumerable.
   # returns a Set.
   defp anagrams_for(phrase, dict_entries, cache_pid) do
-    # {:ok, cache_pid} = Agent.start_link(fn -> %{})
-    # result = Agent.get(cache_pid, fn cache -> cache[blaoahi])
-    # Agent.update(cache_pid, fn cache -> %{cache | newkey: blah}
-
     cached_result = Agent.get(cache_pid, fn map -> map[phrase] end)
 
-    # TODO - talk to the agent
     if cached_result != nil do
       cached_result
     else
@@ -64,16 +59,11 @@ defmodule Anagrams do
       result = if usable_entries == [] do
         %MapSet{}
       else
-        # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster? Then again, the existing anagram is probably < 10 words long...
-        # Also, letterbags are sorted so -- is less efficient than we could do this (or maybe we could use a hash of counters)
-          # results = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries), do: Enum.sort([ entry | anagram ])
-          # MapSet.new(x)
-        # end
 
-        answers = Enum.reduce(usable_entries, [], fn (entry, answers) ->
-          anagrams = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid)
-          Enum.reduce(anagrams, answers, fn anagram, acc -> [Enum.sort([entry | anagram]) | acc] end)
-        end)
+        answers = for entry <- usable_entries,
+                      anagrams_without_this_entry = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid),
+                      smaller_anagram <- anagrams_without_this_entry,
+                      do:  Enum.sort([entry | smaller_anagram])
 
         MapSet.new(answers)
       end
