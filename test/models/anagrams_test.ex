@@ -14,9 +14,9 @@ defmodule Wordular.AnagramsTest do
 
   @tag timeout: 60000, big: true, slow: true
   test "a big ol realistic test" do
-    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+    hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
     # hr_dict = Anagrams.load_human_readable_dictionary("/tmp/words") # remove words < 3 chars long, except "a"
-    hr_dict = Anagrams.load_human_readable_dictionary("/Users/nathanlong/code/wordular/tmp/possible_dictionary.txt")
+    # hr_dict = Anagrams.load_human_readable_dictionary("/Users/nathanlong/code/wordular/tmp/possible_dictionary.txt")
 
     IO.puts "loaded the dictionary file"
     # results = Anagrams.for("racecars are rad", hr_dict)
