@@ -5,9 +5,10 @@ defmodule Anagrams do
   # phrase is a string
   # human_readable_dictionary is a set of strings
   def for(phrase, human_readable_dictionary) do
+    {:ok, cache_pid} = Agent.start_link(fn -> %{} end)
     dict          = dictionary(human_readable_dictionary)
     dict_entries  = MapSet.new(Map.keys(dict))
-    anagrams = anagrams_for(letterbag(phrase), dict_entries)
+    anagrams = anagrams_for(letterbag(phrase), dict_entries, cache_pid)
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -35,11 +36,9 @@ defmodule Anagrams do
     end)
   end
 
-  defp anagrams_for(phrase, dict_entries), do: anagrams_for(phrase, dict_entries, %{}) |> elem(0)
-
   # define base case
-  defp anagrams_for(empty_phrase = [], _dict_entries, memoization_dict) do
-    {MapSet.new([ empty_phrase ]), memoization_dict}
+  defp anagrams_for(empty_phrase = [], _dict_entries, _cache_pid) do
+    MapSet.new([ empty_phrase ])
   end
 
   # catbat
@@ -49,31 +48,36 @@ defmodule Anagrams do
   # each answer contains exactly the letters of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
-  defp anagrams_for(phrase, dict_entries, memoization_dict) do
-    if Map.has_key?(memoization_dict, phrase) do
-      {memoization_dict[phrase], memoization_dict}
+  defp anagrams_for(phrase, dict_entries, cache_pid) do
+    # {:ok, cache_pid} = Agent.start_link(fn -> %{})
+    # result = Agent.get(cache_pid, fn cache -> cache[blaoahi])
+    # Agent.update(cache_pid, fn cache -> %{cache | newkey: blah}
+
+    cached_result = Agent.get(cache_pid, fn map -> map[phrase] end)
+
+    # TODO - talk to the agent
+    if cached_result != nil do
+      cached_result
     else
       usable_entries = usable_entries_for(dict_entries, phrase)
 
       if usable_entries == [] do
-        {%MapSet{}, memoization_dict}
+        %MapSet{}
       else
         # TODO - Enum.sort is general-purpose but we are actually putting one item into an already-sorted list, maybe can do it faster? Then again, the existing anagram is probably < 10 words long...
         # Also, letterbags are sorted so -- is less efficient than we could do this (or maybe we could use a hash of counters)
-        #   x = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries, memoization_dict), do: Enum.sort([ entry | anagram ])
-        #   MapSet.new(x)
+          # results = for entry <- usable_entries, anagram <- anagrams_for(phrase -- entry, usable_entries), do: Enum.sort([ entry | anagram ])
+          # MapSet.new(x)
         # end
 
-        # TODO refactor
-        {answers, mdict} = Enum.reduce(usable_entries, {[], memoization_dict}, fn (entry, {answers, mdict}) ->
-          {anagrams, mdict} = anagrams_for((phrase |> without(entry)), usable_entries, mdict)
-          new_anagrams = Enum.reduce(anagrams, answers, fn anagram, acc -> [Enum.sort([entry | anagram]) | acc] end)
-          {new_anagrams, mdict}
+        answers = Enum.reduce(usable_entries, [], fn (entry, answers) ->
+          anagrams = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid)
+          Enum.reduce(anagrams, answers, fn anagram, acc -> [Enum.sort([entry | anagram]) | acc] end)
         end)
 
         result = MapSet.new(answers)
-
-        {result, Map.put(mdict, phrase, result)}
+        Agent.update(cache_pid, fn map -> Map.put(map, phrase, result) end)
+        result
       end
 
     end
