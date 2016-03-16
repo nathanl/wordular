@@ -28,7 +28,7 @@ defmodule Wordular.AnagramsTest do
   end
 
   test "can convert a string to sorted codepoints" do
-    assert Anagrams.letterbag("nappy") == ["a", "n", "p", "p", "y"]
+    assert Anagrams.alphagram("nappy") == ["a", "n", "p", "p", "y"]
   end
 
   test "can map dictionary words by character list" do
@@ -48,7 +48,7 @@ defmodule Wordular.AnagramsTest do
     assert Anagrams.subtractable_from?(["a", "b", "d"], []) == false
   end
 
-  test "human_readable builds a 'cartesian join' of words the letterbags can spell" do
+  test "human_readable builds a 'cartesian join' of words the alphagrams can spell" do
     anagram = [["a","c","e","r"], ["a","c","r"]]
     dictionary = %{
       ["a", "c", "e", "r"] => ["race", "care"],

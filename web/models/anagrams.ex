@@ -8,7 +8,7 @@ defmodule Anagrams do
     {:ok, cache_pid} = Agent.start_link(fn -> %{} end)
     dict          = dictionary(human_readable_dictionary)
     dict_entries  = MapSet.new(Map.keys(dict))
-    anagrams = anagrams_for(letterbag(phrase), dict_entries, cache_pid)
+    anagrams = anagrams_for(alphagram(phrase), dict_entries, cache_pid)
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -21,7 +21,7 @@ defmodule Anagrams do
 
   # Sorted, non-unique list of codepoints
   # "alpha" -> ["a", "a", "h", "l", "p"]
-  def letterbag(string) do
+  def alphagram(string) do
     string
     |> String.codepoints
     |> Enum.reject(&(&1 == " "))
@@ -32,7 +32,7 @@ defmodule Anagrams do
   def dictionary(human_readable_dictionary) do
     Enum.reduce(human_readable_dictionary, %{}, fn word, map_acc ->
       # If key isn't found, the value passed to our function is 'nil'
-      update_in(map_acc, [letterbag(word)], &((&1 || []) ++ [word]))
+      update_in(map_acc, [alphagram(word)], &((&1 || []) ++ [word]))
     end)
   end
 
@@ -43,8 +43,8 @@ defmodule Anagrams do
 
   # catbat
   # set([["a", "b", "t"], ["a", "c", "t"]], ...)
-  # phrase is a letterbag; dict_entries is a set of letterbag
-  # return a set of answers - each answer is a list of letterbags,
+  # phrase is a alphagram; dict_entries is a set of alphagram
+  # return a set of answers - each answer is a list of alphagrams,
   # each answer contains exactly the letters of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
@@ -75,8 +75,8 @@ defmodule Anagrams do
 
   end
 
-  # Convert a list of letterbags to a list of human-readable anagrams
-  # e.g. [ letterbag("race"), letterbag("car") ] =>
+  # Convert a list of alphagrams to a list of human-readable anagrams
+  # e.g. [ alphagram("race"), alphagram("car") ] =>
   # [ "care car", "race car" ]
   def human_readable(anagram, dictionary) do
     anagram
@@ -101,15 +101,15 @@ defmodule Anagrams do
 
   def subtractable_from?(needles, haystack) do
     thing = haystack |> without(needles)
-    # TODO: Enum.count(a_list) is O(n).  If the letterbags we passed around
-    # were not sorted lists but a %Letterbag{sorted_letters: [...], size: 48}
+    # TODO: Enum.count(a_list) is O(n).  If the alphagrams we passed around
+    # were not sorted lists but a %alphagram{sorted_letters: [...], size: 48}
     # we could make this O(1), and probably find other optimizations throughout
     # the code.
     expected_length = Enum.count(haystack) - Enum.count(needles)
     expected_length == Enum.count(thing)
   end
 
-  # Takes two letterbags, subtracts one from the other
+  # Takes two alphagrams, subtracts one from the other
   # TODO - implement more efficiently since we know that these are sorted?
   def without(haystack, needles) do
     haystack -- needles
