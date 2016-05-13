@@ -37,13 +37,13 @@ defmodule Anagrams do
   end
 
   # define base case
-  defp anagrams_for(empty_phrase = [], _dict_entries, _cache_pid) do
-    MapSet.new([ empty_phrase ])
+  defp anagrams_for([], _dict_entries, _cache_pid) do
+    MapSet.new([ [] ])
   end
 
   # catbat
   # set([["a", "b", "t"], ["a", "c", "t"]], ...)
-  # phrase is a alphagram; dict_entries is a set of alphagram
+  # phrase is a alphagram; dict_entries is a set of alphagrams
   # return a set of answers - each answer is a list of alphagrams,
   # each answer contains exactly the letters of the input phrase
   # dict_entries is an enumerable.
@@ -57,7 +57,7 @@ defmodule Anagrams do
       usable_entries = usable_entries_for(dict_entries, phrase)
 
       result = if usable_entries == [] do
-        %MapSet{}
+        MapSet.new
       else
 
         answers = for entry <- usable_entries,
@@ -96,16 +96,16 @@ defmodule Anagrams do
   end
 
   def usable_entries_for(dict_entries, phrase) do
-    Enum.filter(dict_entries, &(subtractable_from?(&1, phrase)))
+    Enum.filter(dict_entries, &(sublist?(&1, phrase)))
   end
 
-  def subtractable_from?(needles, haystack) do
-    thing = haystack |> without(needles)
+  def sublist?(possible_sublist, list) do
+    thing = list |> without(possible_sublist)
     # TODO: Enum.count(a_list) is O(n).  If the alphagrams we passed around
     # were not sorted lists but a %alphagram{sorted_letters: [...], size: 48}
     # we could make this O(1), and probably find other optimizations throughout
     # the code.
-    expected_length = Enum.count(haystack) - Enum.count(needles)
+    expected_length = Enum.count(list) - Enum.count(possible_sublist)
     expected_length == Enum.count(thing)
   end
 

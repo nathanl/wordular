@@ -34,18 +34,18 @@ defmodule Wordular.AnagramsTest do
   test "can map dictionary words by character list" do
     actual = Anagrams.dictionary(["bat", "tab", "hat"])
     expected = %{
-      ["a", "b", "t"] => ["bat", "tab"],
+      ["a", "b", "t"] => ["tab", "bat"],
       ["a", "h", "t"] => ["hat"],
     }
     assert actual == expected
   end
 
-  test "subtractable_from?" do
-    assert Anagrams.subtractable_from?(["a", "b"], ["a", "b", "c"]) == true
-    assert Anagrams.subtractable_from?(["a", "b", "d"], ["a", "b", "c"]) == false
-    assert Anagrams.subtractable_from?(["a", "b", "d"], ["a", "d"]) == false
-    assert Anagrams.subtractable_from?([], ["a", "d"]) == true
-    assert Anagrams.subtractable_from?(["a", "b", "d"], []) == false
+  test "sublist?" do
+    assert Anagrams.sublist?(["a", "b"], ["a", "b", "c"]) == true
+    assert Anagrams.sublist?(["a", "b", "d"], ["a", "b", "c"]) == false
+    assert Anagrams.sublist?(["a", "b", "d"], ["a", "d"]) == false
+    assert Anagrams.sublist?([], ["a", "d"]) == true
+    assert Anagrams.sublist?(["a", "b", "d"], []) == false
   end
 
   test "human_readable builds a 'cartesian join' of words the alphagrams can spell" do
