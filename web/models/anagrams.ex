@@ -60,6 +60,18 @@ defmodule Anagrams do
         MapSet.new
       else
 
+        # PROBLEM: Currently, if it's possible to find the alphagrams for both
+        # "race" and "car" in our phrase "racecar", we first go down the "car"
+        # path and find "race", then in another iteration of the loop, go down
+        # the "race" path and find "car". This results in duplicates.
+        # We're masking the problem by sorting those and using a MapSet to dedupe them.
+        # But we're still doing the duplicate work.
+        # We (Jay and Nathan) think what we should do for efficiency is, if
+        # we've gone down the "race" path, somehow prevent "sibling" loop
+        # iterations from having "race" in their dictionary - after all, we
+        # should have found all possible results containing "race" under its
+        # own branch after searching for an entry, we want to remove that entry
+        # for the next round of the loop.
         answers = for entry <- usable_entries,
                       anagrams_without_this_entry = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid),
                       smaller_anagram <- anagrams_without_this_entry,
