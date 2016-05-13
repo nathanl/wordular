@@ -5,10 +5,9 @@ defmodule Anagrams do
   # phrase is a string
   # human_readable_dictionary is a set of strings
   def for(phrase, human_readable_dictionary) do
-    {:ok, cache_pid} = Agent.start_link(fn -> %{} end)
     dict          = dictionary(human_readable_dictionary)
-    dict_entries  = MapSet.new(Map.keys(dict))
-    anagrams = anagrams_for(alphagram(phrase), dict_entries, cache_pid)
+    dict_entries  = Map.keys(dict)
+    anagrams = anagrams_for(alphagram(phrase), dict_entries)
     anagrams |> Enum.map(&human_readable(&1, dict)) |> List.flatten
   end
 
@@ -45,8 +44,12 @@ defmodule Anagrams do
   end
 
   # define base case
-  defp anagrams_for([], _dict_entries, _cache_pid) do
-    MapSet.new([ [] ])
+  defp anagrams_for([], _dict_entries) do
+    [[]]
+  end
+
+  defp anagrams_for(_phrase, []) do
+    [[]]
   end
 
   # catbat
@@ -56,43 +59,21 @@ defmodule Anagrams do
   # each answer contains exactly the letters of the input phrase
   # dict_entries is an enumerable.
   # returns a Set.
-  defp anagrams_for(phrase, dict_entries, cache_pid) do
-    cached_result = Agent.get(cache_pid, fn map -> map[phrase] end)
+  defp anagrams_for(phrase, dict_entries) do
+    usable_entries = usable_entries_for(dict_entries, phrase)
 
-    if cached_result != nil do
-      cached_result
-    else
-      usable_entries = usable_entries_for(dict_entries, phrase)
+    answers = Enum.reduce(usable_entries, %{dict: usable_entries, anagrams: []}, fn(entry, acc) ->
+      anagrams_without_this_entry = anagrams_for(
+      (phrase |> without(entry)), acc.dict
+      )
+      anagrams_with_this_entry = Enum.map(anagrams_without_this_entry, fn (smaller_anagram) ->
+        [entry | smaller_anagram]
+      end)
+      # TODO - prepend instead of concatenating
+      %{dict: tl(acc.dict), anagrams: acc[:anagrams] ++ anagrams_with_this_entry}
+    end)
 
-      result = if usable_entries == [] do
-        MapSet.new
-      else
-
-        # PROBLEM: Currently, if it's possible to find the alphagrams for both
-        # "race" and "car" in our phrase "racecar", we first go down the "car"
-        # path and find "race", then in another iteration of the loop, go down
-        # the "race" path and find "car". This results in duplicates.
-        # We're masking the problem by sorting those and using a MapSet to dedupe them.
-        # But we're still doing the duplicate work.
-        # We (Jay and Nathan) think what we should do for efficiency is, if
-        # we've gone down the "race" path, somehow prevent "sibling" loop
-        # iterations from having "race" in their dictionary - after all, we
-        # should have found all possible results containing "race" under its
-        # own branch after searching for an entry, we want to remove that entry
-        # for the next round of the loop.
-        answers = for entry <- usable_entries,
-                      anagrams_without_this_entry = anagrams_for((phrase |> without(entry)), usable_entries, cache_pid),
-                      smaller_anagram <- anagrams_without_this_entry,
-                      do:  Enum.sort([entry | smaller_anagram])
-
-        MapSet.new(answers)
-      end
-
-      Agent.update(cache_pid, fn map -> Map.put(map, phrase, result) end)
-      result
-
-    end
-
+    answers[:anagrams]
   end
 
   # Convert a list of alphagrams to a list of human-readable anagrams
