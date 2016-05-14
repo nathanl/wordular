@@ -2,6 +2,11 @@
 defmodule Wordular.AnagramsTest do
   use ExUnit.Case, async: true
 
+  test "can find the only possible anagrams using a tiny dictionary" do
+    result = Anagrams.for("onto", ["on", "to"])
+    assert result == ["to on"]
+  end
+
   test "can find human-readable anagrams of a phrase using a dictionary" do
     result = Anagrams.for("racecar", ["arc", "are", "car", "care", "race"])
     assert result == ["arc care", "arc race", "car care", "car race"]
