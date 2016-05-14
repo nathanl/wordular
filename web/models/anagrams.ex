@@ -16,7 +16,8 @@ defmodule Anagrams do
   def load_human_readable_dictionary(filename) do
     File.stream!(filename)
     |> Enum.map(&String.strip/1)
-    |> Enum.reject(&(&1 == ""))
+    # Don't consider "" or "u" or "k" to be valid words
+    |> Enum.reject(&(String.length(&1) < 2 && !&1 in ~w(a i o)))
   end
 
   # Sorted, non-unique list of codepoints
