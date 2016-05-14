@@ -63,14 +63,18 @@ defmodule Anagrams do
     usable_entries = usable_entries_for(dict_entries, phrase)
 
     answers = Enum.reduce(usable_entries, %{dict: usable_entries, anagrams: []}, fn(entry, acc) ->
-      anagrams_without_this_entry = anagrams_for(
+      anagrams_without_entry = anagrams_for(
       (phrase |> without(entry)), acc.dict
       )
-      anagrams_with_this_entry = Enum.map(anagrams_without_this_entry, fn (smaller_anagram) ->
-        [entry | smaller_anagram]
-      end)
-      # TODO - prepend instead of concatenating
-      %{dict: tl(acc.dict), anagrams: acc[:anagrams] ++ anagrams_with_this_entry}
+
+      updated_anagrams = Enum.reduce(
+      anagrams_without_entry, acc[:anagrams], fn (anagram_without_entry, acc) ->
+        anagram_with_entry = [entry | anagram_without_entry]
+        [anagram_with_entry | acc]
+      end
+      )
+
+      %{dict: tl(acc.dict), anagrams: updated_anagrams}
     end)
 
     answers[:anagrams]
@@ -91,7 +95,6 @@ defmodule Anagrams do
   def cartesian_product([]), do: []
   def cartesian_product(lists) do
     Enum.reduce(lists, [ [] ], fn one_list, acc ->
-      # New acc is: everything we've built so far, with every new option prepended
       for item <- one_list, subproduct <- acc, do: [item | subproduct]
     end)
   end

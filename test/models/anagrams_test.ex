@@ -14,7 +14,7 @@ defmodule Wordular.AnagramsTest do
 
   test "can handle duplicate words in the input phrase" do
     result = Anagrams.for("apple racecar apple", ["race", "car", "apple", "racecar"])
-    assert result == ["apple apple racecar", "apple apple car race"]
+    assert result == ["apple apple car race", "apple apple racecar"]
   end
 
   @tag timeout: 60000, big: true, slow: true
