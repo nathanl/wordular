@@ -17,6 +17,7 @@ defmodule Wordular.AnagramsTest do
     assert result == ["apple apple car race", "apple apple racecar"]
   end
 
+  @tag skip: "perf test, big and slow, has big old output"
   @tag timeout: 60000, big: true, slow: true
   test "a big ol realistic test" do
     hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
