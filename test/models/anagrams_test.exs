@@ -51,12 +51,14 @@ defmodule Wordular.AnagramsTest do
     assert actual == expected
   end
 
-  test "sublist?" do
-    assert Anagrams.sublist?(["a", "b"], ["a", "b", "c"]) == true
-    assert Anagrams.sublist?(["a", "b", "d"], ["a", "b", "c"]) == false
-    assert Anagrams.sublist?(["a", "b", "d"], ["a", "d"]) == false
-    assert Anagrams.sublist?([], ["a", "d"]) == true
-    assert Anagrams.sublist?(["a", "b", "d"], []) == false
+  test "sub_alphagram?" do
+    assert Anagrams.sub_alphagram?(["a"],           ["a", "b"])      == true
+    assert Anagrams.sub_alphagram?(["c"],           ["a", "b"])      == false
+    assert Anagrams.sub_alphagram?(["a", "b"],      ["a", "b"])      == true
+    assert Anagrams.sub_alphagram?(["a", "a"],      ["a", "b"])      == false
+    assert Anagrams.sub_alphagram?(["a", "a"],      ["a", "a", "b"]) == true
+    assert Anagrams.sub_alphagram?([],              ["a", "b"])      == true
+    assert Anagrams.sub_alphagram?(["a", "b"],      [])              == false
   end
 
   test "human_readable builds a 'cartesian join' of words the alphagrams can spell" do

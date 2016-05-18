@@ -105,17 +105,17 @@ defmodule Anagrams do
   end
 
   def usable_entries_for(dict_entries, phrase) do
-    Enum.filter(dict_entries, &(sublist?(&1, phrase)))
+    Enum.filter(dict_entries, &(sub_alphagram?(&1, phrase)))
   end
 
-  def sublist?(possible_sublist, list) do
-    thing = list |> without(possible_sublist)
-    # TODO: Enum.count(a_list) is O(n).  If the alphagrams we passed around
-    # were not sorted lists but a %alphagram{sorted_letters: [...], size: 48}
+  def sub_alphagram?(possible_sub, alphagram) do
+    subtracted = alphagram |> without(possible_sub)
+    # TODO: Enum.count(a_alphagram) is O(n).  If the alphagrams we passed around
+    # were not sorted alphagrams but a %alphagram{sorted_letters: [...], size: 48}
     # we could make this O(1), and probably find other optimizations throughout
     # the code.
-    expected_length = Enum.count(list) - Enum.count(possible_sublist)
-    expected_length == Enum.count(thing)
+    expected_length = Enum.count(alphagram) - Enum.count(possible_sub)
+    expected_length == Enum.count(subtracted)
   end
 
   # Takes two alphagrams, subtracts one from the other
