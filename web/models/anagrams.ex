@@ -118,6 +118,33 @@ defmodule Anagrams do
     expected_length == Enum.count(subtracted)
   end
 
+
+  def new_sub_alphagram?([], []) do
+    true
+  end
+
+  def new_sub_alphagram?([], [_h|_t]) do
+    true
+  end
+
+  def new_sub_alphagram?([_h|_t], []) do
+    false
+  end
+
+  # Relies on knowledge that alphagrams are sorted
+  def new_sub_alphagram?([psh | pst] = possible_sub, [ah | at] = _alphagram) do
+    cond do
+      # We will never find this character, so fail
+      psh > ah -> false
+
+      # We have found this character, so check the rest of the string
+      psh == ah -> new_sub_alphagram?(pst, at)
+
+      # We haven't found this character, but we still might
+      psh < ah -> new_sub_alphagram?(possible_sub, at)
+    end
+  end
+
   # Takes two alphagrams, subtracts one from the other
   # TODO - implement more efficiently since we know that these are sorted?
   def without(haystack, needles) do

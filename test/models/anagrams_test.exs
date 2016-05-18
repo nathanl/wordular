@@ -61,6 +61,16 @@ defmodule Wordular.AnagramsTest do
     assert Anagrams.sub_alphagram?(["a", "b"],      [])              == false
   end
 
+  test "new_sub_alphagram?" do
+    assert Anagrams.new_sub_alphagram?(["a"],           ["a", "b"])      == true
+    assert Anagrams.new_sub_alphagram?(["c"],           ["a", "b"])      == false
+    assert Anagrams.new_sub_alphagram?(["a", "b"],      ["a", "b"])      == true
+    assert Anagrams.new_sub_alphagram?(["a", "a"],      ["a", "b"])      == false
+    assert Anagrams.new_sub_alphagram?(["a", "a"],      ["a", "a", "b"]) == true
+    assert Anagrams.new_sub_alphagram?([],              ["a", "b"])      == true
+    assert Anagrams.new_sub_alphagram?(["a", "b"],      [])              == false
+  end
+
   test "human_readable builds a 'cartesian join' of words the alphagrams can spell" do
     anagram = [["a","c","e","r"], ["a","c","r"]]
     dictionary = %{
