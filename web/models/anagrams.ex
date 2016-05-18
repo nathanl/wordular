@@ -1,5 +1,6 @@
 # NOTE: see anagrams_ideas.md
 defmodule Anagrams do
+  @legal_codepoints 97..122 # lowercase a..z
 
   # Top level function
   # phrase is a string
@@ -30,8 +31,12 @@ defmodule Anagrams do
   # "alpha" -> ["a", "a", "h", "l", "p"]
   def alphagram(string) do
     string
+    |> String.downcase
     |> String.codepoints
-    |> Enum.reject(&(&1 == " "))
+    |> Enum.reject(fn(codepoint) ->
+      <<codepoint_val::utf8>> = codepoint
+      !(codepoint_val in @legal_codepoints)
+    end)
     |> Enum.sort
   end
 

@@ -7,6 +7,11 @@ defmodule Wordular.AnagramsTest do
     assert result == ["to on"]
   end
 
+  test "ignores punctuation, capitalization and spaces" do
+    result = Anagrams.for("On, To!", ["on", "to"])
+    assert result == ["to on"]
+  end
+
   test "can find human-readable anagrams of a phrase using a dictionary" do
     result = Anagrams.for("racecar", ["arc", "are", "car", "care", "race"])
     assert result == ["arc care", "arc race", "car care", "car race"]
