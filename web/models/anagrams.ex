@@ -108,40 +108,46 @@ defmodule Anagrams do
     Enum.filter(dict_entries, &(sub_alphagram?(&1, phrase)))
   end
 
-  def sub_alphagram?(possible_sub, alphagram) do
-    subtracted = alphagram |> without(possible_sub)
-    # TODO: Enum.count(a_alphagram) is O(n).  If the alphagrams we passed around
-    # were not sorted alphagrams but a %alphagram{sorted_letters: [...], size: 48}
-    # we could make this O(1), and probably find other optimizations throughout
-    # the code.
-    expected_length = Enum.count(alphagram) - Enum.count(possible_sub)
-    expected_length == Enum.count(subtracted)
-  end
+  # def sub_alphagram?(possible_sub, alphagram) do
+  #   subtracted = alphagram |> without(possible_sub)
+  #   # TODO: Enum.count(a_alphagram) is O(n).  If the alphagrams we passed around
+  #   # were not sorted alphagrams but a %alphagram{sorted_letters: [...], size: 48}
+  #   # we could make this O(1), and probably find other optimizations throughout
+  #   # the code.
+  #   expected_length = Enum.count(alphagram) - Enum.count(possible_sub)
+  #   expected_length == Enum.count(subtracted)
+  # end
 
-
-  def new_sub_alphagram?([], []) do
+  # Looked through all items in both
+  def sub_alphagram?([], []) do
     true
   end
 
-  def new_sub_alphagram?([], [_h|_t]) do
+  def sub_alphagram?([], [_h|_t]) do
     true
   end
 
-  def new_sub_alphagram?([_h|_t], []) do
+  def sub_alphagram?([_h|_t], []) do
     false
   end
 
   # Relies on knowledge that alphagrams are sorted
-  def new_sub_alphagram?([psh | pst] = possible_sub, [ah | at] = _alphagram) do
+  def sub_alphagram?([psh | pst] = possible_sub, [ah | at] = alphagram) do
     cond do
-      # We will never find this character, so fail
-      psh > ah -> false
-
-      # We have found this character, so check the rest of the string
-      psh == ah -> new_sub_alphagram?(pst, at)
+      # We have found this character, so look for the next one we need
+      # Eg, looking for c and find c
+      psh == ah ->
+        sub_alphagram?(pst, at)
 
       # We haven't found this character, but we still might
-      psh < ah -> new_sub_alphagram?(possible_sub, at)
+      # Eg, looking for c and find b; may find c later
+      psh > ah ->
+        sub_alphagram?(possible_sub, at)
+
+      # We will never find this character, so fail
+      # Eg, looking for a and find b; a will not occur later
+      psh < ah ->
+        false
     end
   end
 
