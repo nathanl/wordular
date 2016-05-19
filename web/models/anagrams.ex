@@ -108,47 +108,37 @@ defmodule Anagrams do
     Enum.filter(dict_entries, &(sub_alphagram?(&1, phrase)))
   end
 
-  # def sub_alphagram?(possible_sub, alphagram) do
-  #   subtracted = alphagram |> without(possible_sub)
-  #   # TODO: Enum.count(a_alphagram) is O(n).  If the alphagrams we passed around
-  #   # were not sorted alphagrams but a %alphagram{sorted_letters: [...], size: 48}
-  #   # we could make this O(1), and probably find other optimizations throughout
-  #   # the code.
-  #   expected_length = Enum.count(alphagram) - Enum.count(possible_sub)
-  #   expected_length == Enum.count(subtracted)
-  # end
-
-  # Looked through all items in both
-  def sub_alphagram?([], []) do
+  # *** This function relies on knowledge that alphagrams are sorted ***
+  #
+  # Nothing left to look for
+  def sub_alphagram?([] = _possible_sub, _alphagram) do
     true
   end
-
-  def sub_alphagram?([], [_h|_t]) do
-    true
-  end
-
+  #
+  # Still looking for something, but have exhausted the possibilities
   def sub_alphagram?([_h|_t], []) do
     false
   end
-
-  # Relies on knowledge that alphagrams are sorted
-  def sub_alphagram?([psh | pst] = possible_sub, [ah | at] = alphagram) do
+  # 
+  # Still looking for something, and still have things to check
+  def sub_alphagram?([psh | pst] = possible_sub, [ah | at] = _alphagram) do
     cond do
       # We have found this character, so look for the next one we need
       # Eg, looking for c and find c
       psh == ah ->
         sub_alphagram?(pst, at)
 
-      # We haven't found this character, but we still might
-      # Eg, looking for c and find b; may find c later
+        # We haven't found this character, but we still might
+        # Eg, looking for c and find b; may find c later
       psh > ah ->
         sub_alphagram?(possible_sub, at)
 
-      # We will never find this character, so fail
-      # Eg, looking for a and find b; a will not occur later
+        # We will never find this character, so fail
+        # Eg, looking for a and find b; a will not occur later
       psh < ah ->
         false
     end
+
   end
 
   # Takes two alphagrams, subtracts one from the other

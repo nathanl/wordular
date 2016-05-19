@@ -1,0 +1,3 @@
+"racecars are rad me lad"
+old: 83 seconds
+new: 59 seconds

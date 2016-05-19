@@ -23,18 +23,20 @@ defmodule Wordular.AnagramsTest do
   end
 
   @tag skip: "perf test, big and slow, has big old output"
-  @tag timeout: 60000, big: true, slow: true
+  @tag timeout: 120000, big: true, slow: true
   test "a big ol realistic test" do
-    hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
+    # hr_dict = Anagrams.load_human_readable_dictionary("/usr/share/dict/words")
     # hr_dict = Anagrams.load_human_readable_dictionary("/tmp/words") # remove words < 3 chars long, except "a"
-    # hr_dict = Anagrams.load_human_readable_dictionary("/Users/nathanlong/code/wordular/tmp/possible_dictionary.txt")
+    # use http://www-01.sil.org/linguistics/wordlists/english/wordlist/wordsEn.txt
+    hr_dict = Anagrams.load_human_readable_dictionary("/Users/nathanl/code/wordular/tmp/sil_wordlist.txt")
 
     IO.puts "loaded the dictionary file"
     # results = Anagrams.for("racecars are rad", hr_dict)
-    results = Anagrams.for("racecars are rad", hr_dict)
+    results = Anagrams.for("racecars are rad me lad", hr_dict)
     # results = Anagrams.for("matthew wildeboer", hr_dict) # bogs down
     IO.inspect results
     IO.inspect("result count: #{Enum.count(results)}")
+    File.write!("tmp/results.txt", results) # TODO make it put one anagram per line
     # IO.inspect(Enum.max_by(results, fn(str) -> String.codepoints(str) |> Enum.filter(&(&1 == " ")) |> Enum.count end))
   end
 
